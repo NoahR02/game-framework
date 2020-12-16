@@ -104,7 +104,7 @@ int main() {
   vao.vertexAttribLayout(1, 2, GL_FLOAT, false, sizeof(float) * 5, (const void*)(sizeof(float) * 3));
   vao.enableAttribute(1);
 
-  std::string path = "C:\\Users\\Lucy\\projects\\MinecraftClone\\assets\\textures\\texture.png";
+  std::string path = R"(/home/lucy/projects/RPG/assets/textures/texture.png)";
   Texture texture(path);
   texture.bind();
 
