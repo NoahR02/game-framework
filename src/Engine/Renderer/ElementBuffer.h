@@ -2,19 +2,14 @@
 #define MINECRAFTCLONE_ELEMENTBUFFER_H
 
 
-class ElementBuffer {
-
-private:
+struct ElementBuffer {
   unsigned int rendererID;
-public:
 
   ElementBuffer();
   void bind();
   void unBind();
   void buffer(signed long int sizeOfBuffer, const void* positions, unsigned int drawCall);
   ~ElementBuffer();
-
-
 };
 
 

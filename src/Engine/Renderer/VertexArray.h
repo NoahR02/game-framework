@@ -2,11 +2,8 @@
 #define MINECRAFTCLONE_VERTEXARRAY_H
 
 
-class VertexArray {
-
-private:
+struct VertexArray {
   unsigned int rendererID;
-public:
 
   VertexArray();
   void bind();
@@ -16,7 +13,6 @@ public:
   void vertexAttribLayout(int attribute = 0, int attributeLength = 3, int type = 0x1406 /* Float */, int normalized = false,
                           int stride = 0, const void* pointer = (const void *)0);
   ~VertexArray();
-
 };
 
 

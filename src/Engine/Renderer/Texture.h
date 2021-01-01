@@ -4,13 +4,16 @@
 
 #include <string>
 
-class Texture {
-private:
+struct Texture {
   unsigned int rendererID;
-  int width, height, nrChannels;
+  int nrChannels;
 
-public:
+  int width, height;
+  unsigned char* imageData;
+  bool needsFreed = false;
+  Texture() = default;
   Texture(std::string& filePath);
+  Texture(unsigned char* data, int width, int height);
   void bind();
   void unBind();
   ~Texture();

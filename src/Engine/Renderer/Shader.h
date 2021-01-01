@@ -4,12 +4,9 @@
 
 #include <string>
 
-class Shader {
-
-private:
+struct Shader {
 unsigned int rendererID;
 
-public:
   Shader() = default;
   Shader(unsigned int type, const char* shaderSource);
   Shader(unsigned int type, std::string fileName);
