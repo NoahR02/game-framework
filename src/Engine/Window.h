@@ -8,20 +8,33 @@ struct Window {
   GLFWwindow* glfwWindow;
 
   Window(int width, int height, const char* title);
-  void enableVsync(bool enable);
   ~Window();
 
-  void setTitle(const char* title);
+  bool isVisible() const;
+  inline bool isOpen() const { return open; }
+
+  void setVisible(bool visible);
+  void setOpen(bool open);
+
+  void clear() const;
+  void swapBuffers() const;
+
   void setWidth(int width);
   void setHeight(int height);
+  void setTitle(const char* title);
 
-  int getWidth();
-  int getHeight();
-  const char* getTitle();
+  int getWidth() const;
+  int getHeight() const;
+
+  std::string getTitle() const;
+
 private:
   std::string title = "RPG";
+  int width;
+  int height;
 
-  void setSize(int width, int height);
+  bool visible = true;
+  bool open = true;
 };
 
 #endif //RPG_WINDOW_H

@@ -1,8 +1,6 @@
 #include <iostream>
 #include <memory>
 #include "Renderer.h"
-#include "../GameObjects/Player.h"
-#include "../ApplicationState.h"
 
 Renderer::Renderer() {
   camera = new Camera(0, 1600, 0, 900);

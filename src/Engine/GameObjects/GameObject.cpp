@@ -39,8 +39,6 @@ void GameObject::move() {
 }
 
 GameObject::~GameObject() {
-  auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  std::cout << "Deleting Game Object At: " << std::ctime(&time) << std::endl;
 
   delete vbo;
   delete ebo;
