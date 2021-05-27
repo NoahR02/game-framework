@@ -7,3 +7,6 @@
 [submodule "third-party/glm"]
 	path = third-party/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "third-party/cista"]
+	path = third-party/cista
+	url = https://github.com/felixguendling/cista.git

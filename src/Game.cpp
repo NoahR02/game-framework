@@ -1,131 +1,93 @@
 #include <iostream>
 #include <vector>
+
 #include <fstream>
-#include <string>
+
+#include "cista/containers/vector.h"
+#include "cista/reflection/to_tuple.h"
+#include <cista/serialization.h>
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexBuffer.h"
+#include "Renderer/ShaderProgram.h"
+#include "Renderer/Texture.h"
+#include "Renderer/ElementBuffer.h"
+#include "SpriteSheet.h"
+#include "TileMap/TileMap.h"
+#include "Input/Keyboard.h"
 
-void windowCloseCallback(GLFWwindow* window) {  }
-
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); }
-
-void GLAPIENTRY messageCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ) {
-  std::cerr
-  << "GL CALLBACK: "
-  << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" )
-  << "type = 0x" << type
-  <<  ", severity = 0x" << severity
-  << ", message = " << message
-  << std::endl;
-}
-
-std::string readFile(const std::string& path) {
-  std::ifstream file{path};
-  std::string fileString;
-  std::string lineReader;
-
-  while(std::getline(file, lineReader)) fileString += lineReader + "\n";
-  file.close();
-
-  return fileString;
-}
-
+#include "Window.h"
+#include "GUI/Gui.h"
+#include "TileMap/Grid.h"
 
 int main() {
-  GLFWwindow* window;
+  auto window = std::make_shared<Window>(1600, 900, "RPG");
+  auto camera = std::make_unique<Camera>(window->getWidth(), window->getHeight());
 
-  if(!glfwInit()) return -1;
+  SpriteSheet spriteSheet;
+  spriteSheet.addTile(TileType::GRASS, TexturePosition{3, 1});
+  spriteSheet.addTile(TileType::WATER, TexturePosition{5, 3});
+  spriteSheet.addTile(TileType::LAVA, TexturePosition{2, 8});
+  spriteSheet.addTile(TileType::WOOD, TexturePosition{0, 2});
+  spriteSheet.addTile(TileType::DOOR, TexturePosition{0, 6});
+  spriteSheet.addTile(TileType::TREE, TexturePosition{4, 9});
+  spriteSheet.addTile(TileType::MOSS_BLOCK, TexturePosition{6, 1});
+  spriteSheet.addTile(TileType::GOLD_COINS, TexturePosition{4, 8});
+  spriteSheet.addTile(TileType::SNOW_MOUNTAIN, TexturePosition{7, 7});
+  spriteSheet.addTile(TileType::DIRT_MOUNTAIN, TexturePosition{6, 7});
 
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+  TileMap tileMap(spriteSheet);
 
-  window = glfwCreateWindow(640, 480, "RPG", nullptr, nullptr);
-  if(!window) { glfwTerminate(); return -1;}
+  {
+    // Deserialize Data
+    std::ifstream readFile("writeFile.txt", std::ios::binary);
+    std::vector<unsigned char> contents((std::istreambuf_iterator<char>(readFile)), std::istreambuf_iterator<char>());
+    readFile.close();
 
-  glfwMakeContextCurrent(window);
-  gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-
-  glfwSetWindowCloseCallback(window, windowCloseCallback);
-  glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-
-  glViewport(0, 0, 640, 480);
-
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(messageCallback, nullptr );
-
-  std::string vertexShaderSource = readFile("shaders/vertex.vert");
-  std::string fragmentShaderSource = readFile("shaders/fragment.frag");
-
-  unsigned int program = glCreateProgram();
-  unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-  const char* tmpVertexString = vertexShaderSource.c_str();
-  const char* tmpFragmentString = fragmentShaderSource.c_str();
-
-  glShaderSource(vertexShader, 1, &tmpVertexString, nullptr);
-  glShaderSource(fragmentShader, 1, &tmpFragmentString, nullptr);
-
-  glCompileShader(vertexShader);
-  glCompileShader(fragmentShader);
-
-  glAttachShader(program, vertexShader);
-  glAttachShader(program, fragmentShader);
-
-  glLinkProgram(program);
-
-  std::vector<float> vertices = {
-    -0.5f, 0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-    0.5f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f
-  };
-
-  std::vector<unsigned int> indices = {
-    0, 1, 2,
-    2, 1, 3
-  };
-
-  unsigned int vao;
-  unsigned int vbo;
-  unsigned int ebo;
-
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float) * vertices.size()), &vertices.front(), GL_STATIC_DRAW);
-
-  glGenBuffers(1, &ebo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(unsigned int) * indices.size()), &indices.front(), GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, nullptr);
-  glEnableVertexAttribArray(0);
-
-  glUseProgram(program);
-
-  while(!glfwWindowShouldClose(window)) {
-    glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    auto loadedTiles = cista::deserialize<cista::basic_vector<Tile>>(contents);
+    std::copy(loadedTiles->begin(), loadedTiles->end(), std::back_inserter(tileMap.tiles));
+    tileMap.upload();
   }
 
-  glDeleteBuffers(1, &vbo);
-  glDeleteVertexArrays(1, &vao);
+  auto gui = std::make_unique<Gui>(window);
+  auto grid = std::make_unique<Grid>(window->getWidth(), window->getHeight(), 16, 16);
 
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  glDeleteProgram(program);
+  while(!window->shouldWindowClose()) {
+    if(keys[GLFW_KEY_W]) camera->moveUp();
+    if(keys[GLFW_KEY_A]) camera->moveLeft();
+    if(keys[GLFW_KEY_S]) camera->moveDown();
+    if(keys[GLFW_KEY_D]) camera->moveRight();
 
-  glfwTerminate();
+    if(keys[GLFW_KEY_EQUAL]) camera->zoomIn();
+    if(keys[GLFW_KEY_MINUS]) camera->zoomOut();
+
+    gui->captureViewport();
+    window->setBackgroundColor(0.3f* 255, 0.5f* 25, 0.7f * 255, 1.0f);
+
+    // Draw the tilemap
+    tileMap.draw(*camera);
+    grid->draw(*camera);
+
+    // Unbind capture of GUI viewport capture...
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    gui->render(tileMap);
+
+
+    window->swapBuffers();
+    window->pollEvents();
+  }
+
+  // Serialize Data
+  {
+    std::vector<unsigned char> buf = cista::serialize(tileMap.tiles);
+    std::ofstream writeFile("writeFile.txt", std::ios::out | std::ios::binary);
+    size_t tmp = buf.size();
+    writeFile.write((char*)buf.data(), tmp);
+    writeFile.close();
+  }
+
   return 0;
 }
