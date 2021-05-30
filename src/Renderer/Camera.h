@@ -23,8 +23,8 @@ public:
   void moveUp();
   void moveDown();
 
-  void zoomIn();
-  void zoomOut();
+  void zoomIn(const int& windowWidth, const int& windowHeight);
+  void zoomOut(const int& windowWidth, const int& windowHeight);
 
   ~Camera() = default;
 };

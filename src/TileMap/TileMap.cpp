@@ -19,7 +19,14 @@ TileMap::TileMap(SpriteSheet spriteSheet) : spriteSheet(spriteSheet)  {
 }
 
 void TileMap::addTile(Tile tile) {
-  tiles.push_back(tile);
+  for(int i = 0; i < tiles.size(); ++i)
+    if(tiles[i].position.x == tile.position.x && tiles[i].position.y == tile.position.y) {
+      tiles.erase(&tiles[i]);
+      tiles.push_back(tile);
+      return;
+    }
+
+    tiles.push_back(tile);
 }
 
 void TileMap::upload() {

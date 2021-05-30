@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glad/glad.h>
 
 Camera::Camera(int width, int height) {
   projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height),0.0f);
@@ -27,14 +28,14 @@ void Camera::moveDown() {
   mvp = projection * view;
 }
 
-void Camera::zoomIn() {
-  zoomLevel += 0.001f;
+void Camera::zoomIn(const int& windowWidth, const int& windowHeight) {
+  zoomLevel += 0.006;
+  projection = glm::ortho(0.0f, static_cast<float>(windowWidth/zoomLevel), static_cast<float>(windowHeight/zoomLevel),0.0f);
   mvp = projection * view;
-  mvp = glm::scale(mvp, glm::vec3(zoomLevel));
 }
 
-void Camera::zoomOut() {
-  zoomLevel -= 0.001f;
+void Camera::zoomOut(const int& windowWidth, const int& windowHeight) {
+  zoomLevel -= 0.006;
+  projection = glm::ortho(0.0f, static_cast<float>(windowWidth/zoomLevel), static_cast<float>(windowHeight/zoomLevel),0.0f);
   mvp = projection * view;
-  mvp = glm::scale(mvp, glm::vec3(zoomLevel));
 }

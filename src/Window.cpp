@@ -38,7 +38,7 @@ int Window::loadGLFW(int &width, int &height, const char *title) {
   if (!glfwInit()) return -1;
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
@@ -53,7 +53,7 @@ int Window::loadGLFW(int &width, int &height, const char *title) {
     std::cout << "GLAD has failed to load." << std::endl;
     exit(EXIT_FAILURE);
   }
-  glfwSwapInterval(1);
+  glfwSwapInterval(0);
 
   glViewport(0, 0, width, height);
 

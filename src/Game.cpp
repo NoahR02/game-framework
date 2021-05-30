@@ -2,6 +2,7 @@
 #include <vector>
 
 #include <fstream>
+#include <chrono>
 
 #include "cista/containers/vector.h"
 #include "cista/reflection/to_tuple.h"
@@ -9,6 +10,7 @@
 
 #include <glad/glad.h>
 #include <imgui/imgui.h>
+
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexBuffer.h"
 #include "Renderer/ShaderProgram.h"
@@ -40,44 +42,55 @@ int main() {
 
   TileMap tileMap(spriteSheet);
 
-  {
-    // Deserialize Data
-    std::ifstream readFile("writeFile.txt", std::ios::binary);
-    std::vector<unsigned char> contents((std::istreambuf_iterator<char>(readFile)), std::istreambuf_iterator<char>());
-    readFile.close();
+  // Deserialize Data
+  std::ifstream readFile("writeFile.txt", std::ios::binary);
+  std::vector<unsigned char> contents((std::istreambuf_iterator<char>(readFile)), std::istreambuf_iterator<char>());
+  readFile.close();
 
-    auto loadedTiles = cista::deserialize<cista::basic_vector<Tile>>(contents);
-    std::copy(loadedTiles->begin(), loadedTiles->end(), std::back_inserter(tileMap.tiles));
-    tileMap.upload();
-  }
+  auto loadedTiles = cista::deserialize<cista::basic_vector<Tile>>(contents);
+  std::copy(loadedTiles->begin(), loadedTiles->end(), std::back_inserter(tileMap.tiles));
+  tileMap.upload();
+
+
+  tileMap.addTile({{-200, 0}, TileType::LAVA});
+  tileMap.upload();
 
   auto gui = std::make_unique<Gui>(window);
   auto grid = std::make_unique<Grid>(window->getWidth(), window->getHeight(), 16, 16);
 
+  std::chrono::duration<std::size_t, std::ratio<1, 144>> refreshRate{1};
+  std::cout << std::chrono::duration_cast<std::chrono::microseconds>(refreshRate).count()/1000.0f << "ms" << std::endl;
+
+  auto previous = std::chrono::system_clock::now();
+  std::chrono::duration<std::size_t, std::ratio<1,10000000>> delta{};
+
   while(!window->shouldWindowClose()) {
-    if(keys[GLFW_KEY_W]) camera->moveUp();
-    if(keys[GLFW_KEY_A]) camera->moveLeft();
-    if(keys[GLFW_KEY_S]) camera->moveDown();
-    if(keys[GLFW_KEY_D]) camera->moveRight();
+    const auto now = std::chrono::system_clock::now();
+    delta = now-previous;
 
-    if(keys[GLFW_KEY_EQUAL]) camera->zoomIn();
-    if(keys[GLFW_KEY_MINUS]) camera->zoomOut();
+    if(delta >= refreshRate) {
+      previous = now;
+      if (keys[GLFW_KEY_W]) camera->moveUp();
+      if (keys[GLFW_KEY_A]) camera->moveLeft();
+      if (keys[GLFW_KEY_S]) camera->moveDown();
+      if (keys[GLFW_KEY_D]) camera->moveRight();
 
-    gui->captureViewport();
-    window->setBackgroundColor(0.3f* 255, 0.5f* 25, 0.7f * 255, 1.0f);
+      if (keys[GLFW_KEY_EQUAL]) camera->zoomIn(window->getWidth(), window->getHeight());
+      if (keys[GLFW_KEY_MINUS]) camera->zoomOut(window->getWidth(), window->getHeight());
+    }
+      gui->captureViewport();
+      window->setBackgroundColor(0.3f* 255, 0.5f* 25, 0.7f * 255, 1.0f);
 
     // Draw the tilemap
-    tileMap.draw(*camera);
-    grid->draw(*camera);
-
+      tileMap.draw(*camera);
+      grid->draw(*camera);
     // Unbind capture of GUI viewport capture...
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      gui->render(tileMap, *camera);
 
-    gui->render(tileMap);
+      window->swapBuffers();
+      window->pollEvents();
 
-
-    window->swapBuffers();
-    window->pollEvents();
   }
 
   // Serialize Data

@@ -3,6 +3,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <stb_image/stb_image.h>
+#include <iostream>
 
 Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   IMGUI_CHECKVERSION();
@@ -12,9 +14,10 @@ Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
   ImGui_ImplGlfw_InitForOpenGL(this->window->window, true);
-  ImGui_ImplOpenGL3_Init("#version 430");
+  ImGui_ImplOpenGL3_Init("#version 450");
   ImGui::StyleColorsDark();
 
   glGenFramebuffers(1, &frameBufferObject);
@@ -29,28 +32,47 @@ Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameViewportTexture, 0);
 }
 
-void Gui::render(TileMap& tileMap) {
+void Gui::render(TileMap& tileMap, const Camera& camera) {
   // GUI FRAME INIT
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-
   dockingRender();
   createEditor();
 
+  float mainMenuBarHeight;
+  // Create Menu Bar.
+  if (ImGui::BeginMainMenuBar()) {
+    mainMenuBarHeight = ImGui::GetWindowHeight();
+    if (ImGui::BeginMenu("File")) ImGui::EndMenu();
+    if (ImGui::BeginMenu("Edit")) ImGui::EndMenu();
+
+    ImGui::EndMainMenuBar();
+  }
+
+  // Display stats about application.
+  ImGui::Begin("Application Info");
+  ImGui::Text("Window Width: %d", window->getWidth());
+  ImGui::Text("Window Height: %d", window->getHeight());
+  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+  ImGui::End();
+
+
+
   ImGui::Begin("Assets");
 
-    int tileWidth = 16;
-    int tileHeight = 16;
+  int tileWidth = 16;
+  int tileHeight = 16;
 
-    float columns = tileMap.tileMapTexture->width / tileWidth;
-    float rows = tileMap.tileMapTexture->height / tileHeight;
+  float columns = tileMap.tileMapTexture->width / tileWidth;
+  float rows = tileMap.tileMapTexture->height / tileHeight;
 
-  int itemsPerRowPossible = ImGui::GetColumnWidth() / (32 + ImGui::GetStyle().ItemSpacing.x);
+  int itemsPerRowPossible = ImGui::GetColumnWidth() / (32 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x);
   int count = 0;
 
   ImGui::BeginGroup();
+  int id = 1;
   for (const auto& [ key, value ] : tileMap.spriteSheet.tileSpriteMap) {
 
     if(count >= itemsPerRowPossible) {
@@ -68,8 +90,43 @@ void Gui::render(TileMap& tileMap) {
       float x1 =  static_cast<float>((texPos.texturePosX + 1.0f)) / columns;
       float y1 =   static_cast<float>(texPos.texturePosY) / rows;
 
-    ImGui::Image((void *) (intptr_t) tileMap.tileMapTexture->rendererID, ImVec2(32.0f, 32.0f),
-                 ImVec2(x0, y0), ImVec2(x1, y1));
+    ImGui::PushID(id);
+    if(ImGui::ImageButton((void *) (intptr_t) tileMap.tileMapTexture->rendererID, ImVec2(32.0f, 32.0f),
+                 ImVec2(x0, y0), ImVec2(x1, y1))) {
+      selectedTileType = key;
+
+      std::vector<unsigned char> pixels(tileMap.tileWidth * tileMap.tileHeight  * 4);
+
+
+      TexturePosition tileTexturePosition = tileMap.spriteSheet.getTile(selectedTileType);
+      glGetTextureSubImage(
+        tileMap.tileMapTexture->rendererID,
+        0, // level
+        tileMap.tileWidth * tileTexturePosition.texturePosX, // x offset
+        tileMap.tileHeight * ((tileMap.tileMapTexture->height / tileMap.tileHeight - 1)-tileTexturePosition.texturePosY),// y offset
+        0,
+        tileMap.tileWidth,
+        tileMap.tileHeight,
+        1,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        pixels.size(),
+        pixels.data()
+      );
+
+      std::vector<unsigned char> buffer(4*tileWidth);
+      for(int i = 0; i < tileHeight/2; ++i) {
+        memcpy(buffer.data(), pixels.data() + i * buffer.size(), buffer.size());
+        memcpy(pixels.data() + i * buffer.size(), pixels.data() + (tileHeight-1-i) * buffer.size(), buffer.size());
+        memcpy(pixels.data() + (tileHeight-1-i) * buffer.size(), buffer.data(), buffer.size());
+      }
+
+      GLFWimage image {tileMap.tileWidth, tileMap.tileHeight, pixels.data()};
+      GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
+      glfwSetCursor(window->window, cursor);
+    }
+    ImGui::PopID();
+    ++id;
     ImGui::SameLine();
 
     ++count;
@@ -78,6 +135,48 @@ void Gui::render(TileMap& tileMap) {
   ImGui::EndGroup();
 
   ImGui::End();
+
+
+
+
+  // Display Game Window
+  ImGui::Begin("Game Window:");
+
+  if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+
+    if(ImGui::IsWindowFocused()){
+
+      double xpos, ypos;
+      glfwGetCursorPos(window->window, &xpos, &ypos);
+
+      float clickX = xpos - ImGui::GetWindowContentRegionMin().x;
+      float clickY = ypos - ImGui::GetWindowContentRegionMin().y - mainMenuBarHeight;
+
+      auto view = camera.view;
+
+      clickX /= camera.zoomLevel;
+      clickY /= camera.zoomLevel;
+
+      clickX -= camera.view[3][0];
+      clickY -= camera.view[3][1];
+
+      std::printf("Click X: %d \n", static_cast<int>((clickX/16)*16));
+      std::printf("Click Y: %d \n", static_cast<int>(clickY/16)*16);
+      tileMap.addTile({{static_cast<int>((clickX/16))*16, static_cast<int>((clickY/16))*16}, selectedTileType});
+
+      tileMap.upload();
+    }
+
+  }
+
+  ImGui::Image((void*)(intptr_t)gameViewportTexture, ImVec2(window->getWidth(), window->getHeight()), ImVec2(0, 1), ImVec2(1, 0));
+  ImGui::End();
+
+
+
+
+
+
 
   ImGui::Render();
   ImGuiIO &io = ImGui::GetIO();
@@ -136,25 +235,6 @@ void Gui::dockingRender() {
 
 void Gui::createEditor() {
 
-  // Create Menu Bar.
-  if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("File")) ImGui::EndMenu();
-    if (ImGui::BeginMenu("Edit")) ImGui::EndMenu();
-
-    ImGui::EndMainMenuBar();
-  }
-
-  // Display stats about application.
-  ImGui::Begin("Application Info");
-  ImGui::Text("Window Width: %d", window->getWidth());
-  ImGui::Text("Window Height: %d", window->getHeight());
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-  ImGui::End();
-
-  // Display Game Window
-  ImGui::Begin("Game Window:");
-  ImGui::Image((void*)(intptr_t)gameViewportTexture, ImVec2(window->getWidth(), window->getHeight()), ImVec2(0, 1), ImVec2(1, 0));
-  ImGui::End();
 }
 
 // SHUTDOWN

@@ -21,9 +21,11 @@ private:
 
 public:
 
+  TileType selectedTileType = static_cast<TileType>(0);
+
   Gui(std::shared_ptr<Window>& window);
 
-  void render(TileMap& tileMap);
+  void render(TileMap& tileMap, const Camera& camera);
   void captureViewport();
 
   ~Gui();
