@@ -6,9 +6,10 @@
 #include "TileType.h"
 
 class Tile {
+
 public:
   Position position {50, 50};
-  TileType tileType;
+  TileType tileType = static_cast<TileType>(0);
 };
 
 

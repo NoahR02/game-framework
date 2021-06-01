@@ -3,8 +3,8 @@
 
 
 #include <unordered_map>
-#include "TileMap/TileType.h"
-#include "TexturePosition.h"
+#include "TileType.h"
+#include "../TexturePosition.h"
 
 struct SpriteSheet {
 

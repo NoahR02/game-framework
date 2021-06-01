@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "../Window.h"
-#include "../TileMap/TileMap.h"
+#include "../ECS/Components.h"
 
 class Gui {
 
@@ -25,7 +25,7 @@ public:
 
   Gui(std::shared_ptr<Window>& window);
 
-  void render(TileMap& tileMap, const Camera& camera);
+  void render(entt::registry& registry, entt::entity tileMapID, entt::entity cameraID);
   void captureViewport();
 
   ~Gui();

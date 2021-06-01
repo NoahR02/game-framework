@@ -6,6 +6,8 @@
 #include <stb_image/stb_image.h>
 #include <iostream>
 
+#include "../ECS/Systems.h"
+
 Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -32,7 +34,7 @@ Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameViewportTexture, 0);
 }
 
-void Gui::render(TileMap& tileMap, const Camera& camera) {
+void Gui::render(entt::registry& registry, entt::entity tileMapID, entt::entity cameraID) {
   // GUI FRAME INIT
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -59,14 +61,18 @@ void Gui::render(TileMap& tileMap, const Camera& camera) {
   ImGui::End();
 
 
+  auto& camera = registry.get<Components::Camera>(cameraID);
+  auto& tileMap = registry.get<Components::TileMap>(tileMapID);
+  auto& staticRenderGroup = registry.get<Components::StaticRenderGroup>(tileMapID);
+
 
   ImGui::Begin("Assets");
 
   int tileWidth = 16;
   int tileHeight = 16;
 
-  float columns = tileMap.tileMapTexture->width / tileWidth;
-  float rows = tileMap.tileMapTexture->height / tileHeight;
+  float columns = staticRenderGroup.texture->width / tileWidth;
+  float rows = staticRenderGroup.texture->height / tileHeight;
 
   int itemsPerRowPossible = ImGui::GetColumnWidth() / (32 + ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x);
   int count = 0;
@@ -91,7 +97,7 @@ void Gui::render(TileMap& tileMap, const Camera& camera) {
       float y1 =   static_cast<float>(texPos.texturePosY) / rows;
 
     ImGui::PushID(id);
-    if(ImGui::ImageButton((void *) (intptr_t) tileMap.tileMapTexture->rendererID, ImVec2(32.0f, 32.0f),
+    if(ImGui::ImageButton((void *) (intptr_t) staticRenderGroup.texture->rendererID, ImVec2(32.0f, 32.0f),
                  ImVec2(x0, y0), ImVec2(x1, y1))) {
       selectedTileType = key;
 
@@ -100,10 +106,10 @@ void Gui::render(TileMap& tileMap, const Camera& camera) {
 
       TexturePosition tileTexturePosition = tileMap.spriteSheet.getTile(selectedTileType);
       glGetTextureSubImage(
-        tileMap.tileMapTexture->rendererID,
+        staticRenderGroup.texture->rendererID,
         0, // level
         tileMap.tileWidth * tileTexturePosition.texturePosX, // x offset
-        tileMap.tileHeight * ((tileMap.tileMapTexture->height / tileMap.tileHeight - 1)-tileTexturePosition.texturePosY),// y offset
+        tileMap.tileHeight * ((staticRenderGroup.texture->height / tileMap.tileHeight - 1)-tileTexturePosition.texturePosY),// y offset
         0,
         tileMap.tileWidth,
         tileMap.tileHeight,
@@ -160,11 +166,8 @@ void Gui::render(TileMap& tileMap, const Camera& camera) {
       clickX -= camera.view[3][0];
       clickY -= camera.view[3][1];
 
-      std::printf("Click X: %d \n", static_cast<int>((clickX/16)*16));
-      std::printf("Click Y: %d \n", static_cast<int>(clickY/16)*16);
-      tileMap.addTile({{static_cast<int>((clickX/16))*16, static_cast<int>((clickY/16))*16}, selectedTileType});
-
-      tileMap.upload();
+      Systems::TileMapAddTile(registry, tileMapID, {{static_cast<int>((clickX/16))*16, static_cast<int>((clickY/16))*16}, selectedTileType});
+      Systems::TileMapUpdate(registry, tileMapID);
     }
 
   }

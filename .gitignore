@@ -1,9 +1,11 @@
 # cmake
 cmake-build-debug
+out
 
 # IDEs
 .idea
 .vscode
+.vs
 
 # Documentation
 docs/*

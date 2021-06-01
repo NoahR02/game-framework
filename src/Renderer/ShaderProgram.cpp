@@ -1,5 +1,5 @@
 #include "ShaderProgram.h"
-#include "../ReadFile.h"
+#include "../Utils/ReadFile.h"
 
 ShaderProgram::ShaderProgram(const std::string &vertexShaderPath, const std::string &fragmentShaderPath) {
   rendererID = glCreateProgram();
