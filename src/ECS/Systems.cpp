@@ -1,8 +1,6 @@
 #include "Systems.h"
 #include "Components.h"
 
-#include <glad/glad.h>
-
 #include <vector>
 #include <iterator>
 
@@ -73,24 +71,24 @@ void Systems::TileMapUpdate(entt::registry& registry, entt::entity entity) {
 
   unsigned int tmp = 0;
 
-  float columns = staticRenderGroup.texture->width / tileMap.tileWidth;
-  float rows = staticRenderGroup.texture->height / tileMap.tileHeight;
+  float columns = (float)staticRenderGroup.texture->width / (float)tileMap.tileWidth;
+  float rows = (float)staticRenderGroup.texture->height / (float)tileMap.tileHeight;
 
   for (int i = 0; i < tileMap.tiles.size(); ++i) {
-    TexturePosition texPos = tileMap.spriteSheet.getTile(tileMap.tiles[i].tileType);
+    TextureRectangle texPos = tileMap.spriteSheet.getTile(tileMap.tiles[i].tileType);
 
-    texPos.texturePosY = rows - texPos.texturePosY - 1;
+    texPos.y = rows - texPos.y - 1;
 
     staticRenderGroup.vertices.insert(staticRenderGroup.vertices.end(), { 
       //* Vertices *//*                                                                                                         *//* Texture Coords *//*
-      /* top left */     static_cast<float>(tileMap.tiles[i].position.x), static_cast<float>(tileMap.tiles[i].position.y), 0.0f, static_cast<float>(texPos.texturePosX) / columns,
-                         static_cast<float>((static_cast<float>(texPos.texturePosY) + 1.0f)) / rows,  // top left
-      /* bottom left */  static_cast<float>(tileMap.tiles[i].position.x), static_cast<float>(tileMap.tiles[i].position.y + tileMap.tileHeight), 0.0f, static_cast<float>(texPos.texturePosX) / columns,
-                         static_cast<float>(texPos.texturePosY) / rows,  // bottom left
-      /* top right */    static_cast<float>(tileMap.tiles[i].position.x + tileMap.tileWidth), static_cast<float>(tileMap.tiles[i].position.y), 0.0f, static_cast<float>((texPos.texturePosX + 1.0f)) / columns,
-                         static_cast<float>((static_cast<float>(texPos.texturePosY) + 1.0f)) / rows,  // top right
-      /* bottom right */ static_cast<float>(tileMap.tiles[i].position.x + tileMap.tileWidth), static_cast<float>(tileMap.tiles[i].position.y + tileMap.tileHeight), 0.0f, static_cast<float>((texPos.texturePosX + 1.0f)) / columns,
-                         static_cast<float>(texPos.texturePosY) / rows  // bottom right
+      /* top left */     static_cast<float>(tileMap.tiles[i].position.x), static_cast<float>(tileMap.tiles[i].position.y), 0.0f, static_cast<float>(texPos.x) / columns,
+                         static_cast<float>((static_cast<float>(texPos.y) + 1.0f)) / rows,  // top left
+      /* bottom left */  static_cast<float>(tileMap.tiles[i].position.x), static_cast<float>(tileMap.tiles[i].position.y + tileMap.tileHeight), 0.0f, static_cast<float>(texPos.x) / columns,
+                         static_cast<float>(texPos.y) / rows,  // bottom left
+      /* top right */    static_cast<float>(tileMap.tiles[i].position.x + tileMap.tileWidth), static_cast<float>(tileMap.tiles[i].position.y), 0.0f, static_cast<float>((texPos.x + 1.0f)) / columns,
+                         static_cast<float>((static_cast<float>(texPos.y) + 1.0f)) / rows,  // top right
+      /* bottom right */ static_cast<float>(tileMap.tiles[i].position.x + tileMap.tileWidth), static_cast<float>(tileMap.tiles[i].position.y + tileMap.tileHeight), 0.0f, static_cast<float>((texPos.x + 1.0f)) / columns,
+                         static_cast<float>(texPos.y) / rows  // bottom right
       });
 
     staticRenderGroup.indices.insert(staticRenderGroup.indices.end(), {
@@ -117,52 +115,52 @@ void Systems::TileMapUpdate(entt::registry& registry, entt::entity entity) {
 
 }
 
-void Systems::cameraMoveLeft(entt::registry& registry, entt::entity entity) {
+void Systems::cameraMoveLeft(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
   camera.view = glm::translate(camera.view, glm::vec3(camera.speed, 0.0f, 0.0f));
   camera.mvp = camera.projection * camera.view;
 }
 
-void Systems::cameraMoveRight(entt::registry& registry, entt::entity entity) {
+void Systems::cameraMoveRight(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
   camera.view = glm::translate(camera.view, glm::vec3(-camera.speed, 0.0f, 0.0f));
   camera.mvp = camera.projection * camera.view;
 }
 
-void Systems::cameraMoveUp(entt::registry& registry, entt::entity entity) {
+void Systems::cameraMoveUp(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
   camera.view = glm::translate(camera.view, glm::vec3(0.0f, camera.speed, 0.0f));
   camera.mvp = camera.projection * camera.view;
 }
 
-void Systems::cameraMoveDown(entt::registry& registry, entt::entity entity) {
+void Systems::cameraMoveDown(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
   camera.view = glm::translate(camera.view, glm::vec3(0.0f, -camera.speed, 0.0f));
   camera.mvp = camera.projection * camera.view;
 }
 
-void Systems::cameraZoomIn(entt::registry& registry, entt::entity entity, const int &windowWidth, const int &windowHeight) {
+void Systems::cameraZoomIn(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
-  camera.zoomLevel += 0.01;
-  camera.projection = glm::ortho(0.0f, static_cast<float>(windowWidth/camera.zoomLevel), static_cast<float>(windowHeight/camera.zoomLevel),0.0f);
+  camera.zoomLevel += 0.01f;
+  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel,0.0f);
   camera.mvp = camera.projection * camera.view;
 }
 
-void Systems::cameraZomOut(entt::registry& registry, entt::entity entity, const int &windowWidth, const int &windowHeight) {
+void Systems::cameraZomOut(Entity& cameraID) {
 
-  auto& camera = registry.get<Components::Camera>(entity);
+  auto& camera = cameraID.getComponent<Components::Camera>();
 
-  camera.zoomLevel -= 0.01;
-  camera.projection = glm::ortho(0.0f, static_cast<float>(windowWidth/camera.zoomLevel), static_cast<float>(windowHeight/camera.zoomLevel),0.0f);
+  camera.zoomLevel -= 0.01f;
+  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel,0.0f);
   camera.mvp = camera.projection * camera.view;
 }

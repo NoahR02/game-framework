@@ -2,17 +2,42 @@
 #define RPG_RENDERER_H
 
 #include <vector>
+#include "../ECS/Components.h"
+#include "../Sprite.h"
 
 struct Renderer {
 
-  struct Sprite;
-  struct TileMap;
+  void beginDynamicBatch
+  (
 
-  std::vector<float> staticBatch;
-  std::vector<float> dynamicBatch;
+    glm::mat4& projectionMatrix,
+    ShaderProgram& shaderProgram,
+    Texture& textureAtlas
 
-  void draw(Sprite sprite);
-  void draw(TileMap tilemap);
+  );
+
+
+  void endDynamicBatch();
+  void draw(const Sprite& sprite);
+  void draw(const Components::TileMap& tilemap);
+
+
+  Renderer();
+
+  std::vector<float> vertices{};
+  std::vector<unsigned int> indices{};
+  std::vector<const Sprite*> dynamicSprites{};
+
+  glm::mat4* projectionMatrix;
+  ShaderProgram* shaderProgram;
+  Texture* texture;
+
+  std::unique_ptr<VertexArray> vertexArray;
+  std::unique_ptr<VertexBuffer> vbo;
+  std::unique_ptr<ElementBuffer> ebo;
+
+  std::size_t prevVertArrSize = 0;
+  std::size_t prevIndArrSize = 0;
 
 };
 

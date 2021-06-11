@@ -6,6 +6,8 @@
 #include <vector>
 #include "../TileMap/Tile.h"
 
+#include "Entity.h"
+
 namespace Systems {
 
   void staticRenderGroupSystemDraw(entt::registry& registry, entt::entity entity, entt::entity cameraID);
@@ -14,14 +16,14 @@ namespace Systems {
   void TileMapAddTile(entt::registry &registry, entt::entity entity, const Tile& tile);
   void TileMapUpdate(entt::registry &registry, entt::entity entity);
 
-  void cameraMoveLeft(entt::registry& registry, entt::entity entity);
-  void cameraMoveRight(entt::registry& registry, entt::entity entity);
+  void cameraMoveLeft(Entity& cameraID);
+  void cameraMoveRight(Entity& cameraID);
 
-  void cameraMoveUp(entt::registry& registry, entt::entity entity);
-  void cameraMoveDown(entt::registry& registry, entt::entity entity);
+  void cameraMoveUp(Entity& cameraID);
+  void cameraMoveDown(Entity& cameraID);
 
-  void cameraZoomIn(entt::registry& registry, entt::entity entity, const int& windowWidth, const int& windowHeight);
-  void cameraZomOut(entt::registry& registry, entt::entity entity, const int& windowWidth, const int& windowHeight);
+  void cameraZoomIn(Entity& cameraID);
+  void cameraZomOut(Entity& cameraID);
 
 };
 

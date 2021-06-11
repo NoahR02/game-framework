@@ -4,10 +4,15 @@
 
 #include <entt/entt.hpp>
 
-struct Scene {
-  entt::registry registry;
+struct Entity;
 
-  Scene();
+struct Scene {
+
+  entt::registry registry;
+  Entity createEntity();
+  Scene() = default;
+  Entity* currentCamera;
+
 };
 
 

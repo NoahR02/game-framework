@@ -12,7 +12,7 @@ Window::Window() {
 
 }
 
-Window::Window(int width, int height, const char *title) : width(width), height(height), title(title) {
+Window::Window(float width, float height, const char *title) : width(width), height(height), title(title) {
 
   /// Loads GLFW AND Glad
   if (loadGLFW(this->width, this->height, this->title.c_str()) == -1) {
@@ -34,7 +34,7 @@ void GLAPIENTRY messageCallback( GLenum source, GLenum type, GLuint id, GLenum s
   }
 }
 
-int Window::loadGLFW(int &width, int &height, const char *title) {
+int Window::loadGLFW(float &width, float &height, const char *title) {
   if (!glfwInit()) return -1;
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -42,7 +42,7 @@ int Window::loadGLFW(int &width, int &height, const char *title) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-  window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+  window = glfwCreateWindow((int)width, (int)height, title, nullptr, nullptr);
   if (!window) {
     glfwTerminate();
     return -1;
@@ -55,7 +55,7 @@ int Window::loadGLFW(int &width, int &height, const char *title) {
   }
   glfwSwapInterval(0);
 
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, (int)width, (int)height);
 
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(messageCallback, nullptr);
@@ -93,6 +93,8 @@ void Window::windowResizeCB(GLFWwindow *window, int width, int height) {
   Window *windowPtr = (Window *) glfwGetWindowUserPointer(window);
   windowPtr->width = width;
   windowPtr->height = height;
+  glViewport(0, 0, width, height);
+  windowPtr->notify(*windowPtr, Event());
 }
 
 void Window::keyCB(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -104,11 +106,11 @@ void Window::scrollCB(GLFWwindow *window, double xoffset, double yoffset) {
 }
 
 
-const int& Window::getWidth() const {
+const float Window::getWidth() const {
   return width;
 }
 
-const int& Window::getHeight() const {
+const float Window::getHeight() const {
   return height;
 }
 

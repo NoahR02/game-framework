@@ -8,7 +8,7 @@ void VertexBuffer::fillBuffer(std::vector<float>& data, GLenum usage) {
   glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float) * data.size()), &data.front(), usage);
 }
 
-void VertexBuffer::fillBuffer(long size, GLenum usage) {
+void VertexBuffer::fillBuffer(signed long long int size, GLenum usage) {
   glBufferData(GL_ARRAY_BUFFER, size, nullptr, usage);
 }
 

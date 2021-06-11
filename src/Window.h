@@ -4,14 +4,15 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "events/Subject.h"
 
-class Window {
+class Window : public Subject<Window> {
 
 public:
-  GLFWwindow* window;
+  GLFWwindow* window{};
 
   Window();
-  Window(int width, int height, const char* title);
+  Window(float width, float height, const char* title);
 
   void swapBuffers();
   void pollEvents();
@@ -43,8 +44,8 @@ public:
 
   const std::string& getTitle() const;
 
-  const int& getWidth() const;
-  const int& getHeight() const;
+  const float getWidth() const;
+  const float getHeight() const;
 
   int getAspectRatioWidth() const;
   int getAspectRatioHeight() const;
@@ -60,8 +61,8 @@ public:
 
 private:
 
-  int width = 1280;
-  int height = 720;
+  float width = 1280;
+  float height = 720;
   std::string title = "Game";
 
   int aspectRatioWidth = 16;
@@ -78,8 +79,8 @@ private:
     float a = 1.0;
   };
 
-  int loadGLFW(int& width, int& height, const char* title);
+  int loadGLFW(float& width, float& height, const char* title);
   int loadGLAD();
 };
 
-#endif //RPG_WINDOW_H
+#endif

@@ -4,14 +4,14 @@
 
 #include <unordered_map>
 #include "TileType.h"
-#include "../TexturePosition.h"
+#include "../TextureRectangle.h"
 
 struct SpriteSheet {
 
-  std::unordered_map<TileType, TexturePosition> tileSpriteMap;
+  std::unordered_map<TileType, TextureRectangle> tileSpriteMap;
 
-  void addTile(TileType tileType, TexturePosition texturePosition);
-  TexturePosition getTile(TileType tileType);
+  void addTile(TileType tileType, TextureRectangle texturePosition);
+  TextureRectangle getTile(TileType tileType);
 
 };
 

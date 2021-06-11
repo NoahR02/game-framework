@@ -1,9 +1,9 @@
 #include "SpriteSheet.h"
 
-void SpriteSheet::addTile(TileType tileType, TexturePosition texturePosition) {
+void SpriteSheet::addTile(TileType tileType, TextureRectangle texturePosition) {
   tileSpriteMap.insert({tileType, texturePosition});
 }
 
-TexturePosition SpriteSheet::getTile(TileType tileType) {
+TextureRectangle SpriteSheet::getTile(TileType tileType) {
   return tileSpriteMap[tileType];
 }

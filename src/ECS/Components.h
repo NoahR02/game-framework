@@ -17,22 +17,31 @@
 
 #include "../TileMap/Tile.h"
 #include "../TileMap/SpriteSheet.h"
+#include "../Window.h"
 
 
 namespace Components {
 
 
-  struct Camera {
+  struct Camera : Observer<Window> {
     float zoomLevel = 1.0f;
     float speed = 4.0f;
+    float width;
+    float height;
 
     glm::mat4 projection;
     glm::mat4 view;
     glm::mat4 mvp;
 
 
-    Camera(int width, int height);
+    Camera(float width, float height);
 
+    void onNotify(Window &f, Event event) override;
+
+  };
+
+  struct Controller {
+    bool active;
   };
 
   struct TileMap {

@@ -86,15 +86,15 @@ void Gui::render(entt::registry& registry, entt::entity tileMapID, entt::entity 
       count = 0;
     }
 
-    TexturePosition texPos = tileMap.spriteSheet.getTile(key);
+    TextureRectangle texPos = tileMap.spriteSheet.getTile(key);
 
-    texPos.texturePosY = rows - texPos.texturePosY - 1;
+    texPos.y = rows - texPos.y - 1;
 
-      float x0 = static_cast<float>(texPos.texturePosX) / columns;
-      float y0 =  static_cast<float>((static_cast<float>(texPos.texturePosY) + 1.0f)) / rows;
+      float x0 = static_cast<float>(texPos.x) / columns;
+      float y0 = static_cast<float>((static_cast<float>(texPos.y) + 1.0f)) / rows;
 
-      float x1 =  static_cast<float>((texPos.texturePosX + 1.0f)) / columns;
-      float y1 =   static_cast<float>(texPos.texturePosY) / rows;
+      float x1 = static_cast<float>((texPos.x + 1.0f)) / columns;
+      float y1 = static_cast<float>(texPos.y) / rows;
 
     ImGui::PushID(id);
     if(ImGui::ImageButton((void *) (intptr_t) staticRenderGroup.texture->rendererID, ImVec2(32.0f, 32.0f),
@@ -104,12 +104,12 @@ void Gui::render(entt::registry& registry, entt::entity tileMapID, entt::entity 
       std::vector<unsigned char> pixels(tileMap.tileWidth * tileMap.tileHeight  * 4);
 
 
-      TexturePosition tileTexturePosition = tileMap.spriteSheet.getTile(selectedTileType);
+      TextureRectangle tileTexturePosition = tileMap.spriteSheet.getTile(selectedTileType);
       glGetTextureSubImage(
         staticRenderGroup.texture->rendererID,
         0, // level
-        tileMap.tileWidth * tileTexturePosition.texturePosX, // x offset
-        tileMap.tileHeight * ((staticRenderGroup.texture->height / tileMap.tileHeight - 1)-tileTexturePosition.texturePosY),// y offset
+        tileMap.tileWidth * tileTexturePosition.x, // x offset
+        tileMap.tileHeight * ((staticRenderGroup.texture->height / tileMap.tileHeight - 1)-tileTexturePosition.y),// y offset
         0,
         tileMap.tileWidth,
         tileMap.tileHeight,
