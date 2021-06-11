@@ -21,6 +21,7 @@ struct AudioFile {
   explicit AudioFile(const std::string filePath);
   AudioFile() = default;
 
+  ~AudioFile();
 };
 
 

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <utility>
-#include <vector>
 
 #include <fstream>
 #include <chrono>
@@ -27,7 +25,6 @@
 #include "Engine.h"
 
 #include "AL/al.h"
-#include <sndfile.h>
 #include "AL/alc.h"
 #include "AudioFile.h"
 #include "AudioSource.h"
@@ -38,41 +35,41 @@
 // TODO: Add sound.
 // TODO: Add cmake code to move openal dll next to the exe
 
-void Engine::update(float& deltaTime) {
-  const auto now = (float)glfwGetTime();
-  deltaTime = now-previous;
+void Engine::update(float &deltaTime) {
+  const auto now = (float) glfwGetTime();
+  deltaTime = now - previous;
   if(deltaTime >= refreshRate) {
     previous = now;
 
     auto view = currentScene->registry.view<Components::Camera, Components::Controller, Sprite, AudioSource>();
     for(auto entityID : view) {
-      Entity cameraController{entityID, this->currentScene};
-      auto& controller = currentScene->registry.get<Components::Controller>(entityID);
-      auto& sprite = currentScene->registry.get<Sprite>(entityID);
-      auto& camera = currentScene->registry.get<Components::Camera>(entityID);
-      auto& audioSrc = currentScene->registry.get<AudioSource>(entityID);
+      Entity cameraController {entityID, this->currentScene};
+      auto &controller = currentScene->registry.get<Components::Controller>(entityID);
+      auto &sprite = currentScene->registry.get<Sprite>(entityID);
+      auto &camera = currentScene->registry.get<Components::Camera>(entityID);
+      auto &audioSrc = currentScene->registry.get<AudioSource>(entityID);
 
       if(controller.active) {
-        if (keys[GLFW_KEY_W]) {
+        if(keys[GLFW_KEY_W]) {
           Systems::cameraMoveUp(cameraController);
           sprite.y -= camera.speed;
         }
-        if (keys[GLFW_KEY_A]) {
+        if(keys[GLFW_KEY_A]) {
           Systems::cameraMoveLeft(cameraController);
           sprite.x -= camera.speed;
         }
-        if (keys[GLFW_KEY_S]) {
+        if(keys[GLFW_KEY_S]) {
           Systems::cameraMoveDown(cameraController);
           sprite.y += camera.speed;
         }
-        if (keys[GLFW_KEY_D]) {
+        if(keys[GLFW_KEY_D]) {
           Systems::cameraMoveRight(cameraController);
           sprite.x += camera.speed;
         }
 
-        if (keys[GLFW_KEY_EQUAL])
+        if(keys[GLFW_KEY_EQUAL])
           Systems::cameraZoomIn(cameraController);
-        if (keys[GLFW_KEY_MINUS])
+        if(keys[GLFW_KEY_MINUS])
           Systems::cameraZomOut(cameraController);
       }
     }
@@ -81,16 +78,16 @@ void Engine::update(float& deltaTime) {
 
 void Engine::render() {
   //gui->captureViewport();
-  window->setBackgroundColor(0.3f* 255, 0.5f* 25, 0.7f * 255, 1.0f);
+  window->setBackgroundColor(0.3f * 255, 0.5f * 25, 0.7f * 255, 1.0f);
 
-  auto& camera = currentScene->currentCamera->getComponent<Components::Camera>();
+  auto &camera = currentScene->currentCamera->getComponent<Components::Camera>();
 
   renderer->beginDynamicBatch(camera.mvp, *shaderProgram, *texture);
 
   //for(const auto& sprite : sprites) renderer->draw(sprite);
   auto view = currentScene->registry.view<Sprite>();
   for(auto entityID : view) {
-    auto& sprite = currentScene->registry.get<Sprite>(entityID);
+    auto &sprite = currentScene->registry.get<Sprite>(entityID);
     renderer->draw(sprite);
   }
 
@@ -107,47 +104,29 @@ void Engine::render() {
 }
 
 int main() {
-  Scene scene;
   Engine engine;
+  Scene scene;
 
   engine.currentScene = &scene;
 
-
-  ALCdevice *device = nullptr;
-  ALCcontext *context = nullptr;
-
-  device = alcOpenDevice(nullptr);
-  if (!device) {
-    std::cerr << "Could not get audio device." << std::endl;
-    return 3;
-  } else {
-    std::cout << "Found audio device." << std::endl;
-  }
-
-  context = alcCreateContext(device, nullptr);
-
-  if (alcMakeContextCurrent(context)) {
-    std::cout << "Made OpenAL context current." << std::endl;
-  } else {
-    std::cerr << "Failed to make OpenAL context current." << std::endl;
-  }
-
-  AudioFile bounce{"assets/sounds/bounce.wav"};
+  auto bounce = std::make_shared<AudioFile>("assets/sounds/bounce.wav");
+  auto dungeonMusic = std::make_shared<AudioFile>("assets/sounds/jrpg-dungeon-loop.wav");
 
   // Editor Camera
   auto defaultCameraID = engine.currentScene->createEntity();
-  auto& defaultCamera = defaultCameraID.addComponent<Components::Camera>(engine.window->getWidth(), engine.window->getHeight());
+  auto &defaultCamera = defaultCameraID.addComponent<Components::Camera>(engine.window->getWidth(),
+                                                                         engine.window->getHeight());
   scene.currentCamera = &defaultCameraID;
 
   auto player = engine.currentScene->createEntity();
   auto &playerCamera = player.addComponent<Components::Camera>(engine.window->getWidth(), engine.window->getHeight());
   auto &playerSprite = player.addComponent<Sprite>(engine.window->getWidth() / 2 - 32.0f,
                                                    engine.window->getHeight() / 2 - 32.0f, 64.0f, 64.0f,
-                                                   TextureRectangle{0, 16, 16, 16}, Color{1.0f, 1.0f, 1.0f, 1.0f});
+                                                   TextureRectangle {0, 16, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
   auto &playerController = player.addComponent<Components::Controller>(true);
-  auto &audioSrc = player.addComponent<AudioSource>();
+  auto &audioSrc = player.addComponent<AudioSource>(bounce);
   scene.currentCamera = &player;
-  setAudioFile(player, bounce);
+  setAudioFile(player, dungeonMusic);
 
   engine.window->addObserver(&defaultCamera);
   engine.window->addObserver(&playerCamera);
@@ -163,6 +142,27 @@ Engine::Engine() {
 
   shaderProgram = std::make_unique<ShaderProgram>("shaders/defaultVertex.vert", "shaders/defaultFragment.frag");
   texture = std::make_unique<Texture>("assets/tiny-16-basic/dead.png");
+
+  device = alcOpenDevice(nullptr);
+  if(!device) {
+    std::cerr << "Could not get audio device." << std::endl;
+    return;
+  } else {
+    std::cout << "Found audio device." << std::endl;
+  }
+
+  context = alcCreateContext(device, nullptr);
+
+  if(alcMakeContextCurrent(context)) {
+    std::cout << "Made OpenAL context current." << std::endl;
+  } else {
+    std::cerr << "Failed to make OpenAL context current." << std::endl;
+  }
+}
+
+Engine::~Engine() {
+  alcDestroyContext(context);
+  alcCloseDevice(device);
 }
 
 void Engine::start() {
@@ -171,11 +171,12 @@ void Engine::start() {
   for(float x = 0; x < 2; ++x) {
     for(float y = 0; y < 2; ++y) {
       auto spriteID = currentScene->createEntity();
-      spriteID.addComponent<Sprite>(x*16 * scale, y*16 * scale, 16 * scale, 16 * scale, TextureRectangle{0, 32, 16, 16}, Color{1.0f, 1.0f, 1.0f, 1.0f});
+      spriteID.addComponent<Sprite>(x * 16 * scale, y * 16 * scale, 16 * scale, 16 * scale,
+                                    TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
     }
   }
 
-  previous = (float)glfwGetTime();
+  previous = (float) glfwGetTime();
 
   while(!window->shouldWindowClose()) {
     update(delta);

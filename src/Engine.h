@@ -2,6 +2,7 @@
 #define RPG_ENGINE_H
 
 #include <memory>
+#include <AL/alc.h>
 #include "events/Observer.h"
 #include "events/Subject.h"
 
@@ -18,6 +19,9 @@ struct Engine {
 
   std::vector<Sprite> sprites;
 
+  ALCdevice* device;
+  ALCcontext* context;
+
   void update(float& deltaTime);
   void render();
   void start();
@@ -26,6 +30,8 @@ struct Engine {
   float delta = 0.0f;
 
   Scene* currentScene;
+
+  ~Engine();
 
 protected:
   float previous;

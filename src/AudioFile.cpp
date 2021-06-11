@@ -9,7 +9,7 @@
 AudioFile::AudioFile(const std::string filePath) : filePath(filePath), buffer(0) {
 
   SF_INFO sfInfo;
-  SNDFILE *audioFile = sf_open("assets/sounds/bounce.wav", SFM_READ, &sfInfo);
+  SNDFILE *audioFile = sf_open(filePath.c_str(), SFM_READ, &sfInfo);
 
   if(!audioFile) {
     std::cerr << "Could not load audio file." << std::endl;
@@ -37,4 +37,8 @@ AudioFile::AudioFile(const std::string filePath) : filePath(filePath), buffer(0)
   delete[] audioData;
   sf_close(audioFile);
 
+}
+
+AudioFile::~AudioFile() {
+  alDeleteBuffers(1, &buffer);
 }
