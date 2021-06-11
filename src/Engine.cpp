@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include <glad/glad.h>
+#include <box2d/box2d.h>
 
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexBuffer.h"
@@ -38,7 +39,7 @@
 void Engine::update(float &deltaTime) {
   const auto now = (float) glfwGetTime();
   deltaTime = now - previous;
-  if(deltaTime >= refreshRate) {
+  if(deltaTime >= timeStep) {
     previous = now;
 
     auto view = currentScene->registry.view<Components::Camera, Components::Controller, Sprite, AudioSource>();
@@ -132,6 +133,41 @@ int main() {
   engine.window->addObserver(&playerCamera);
 
   play(player);
+
+
+  b2Vec2 gravity {0.0f, -10.0f};
+  b2World world(gravity);
+  b2BodyDef groundBodyDef;
+  groundBodyDef.position.Set(0.0f, -10.0f);
+  b2Body* groundBody = world.CreateBody(&groundBodyDef);
+  b2PolygonShape groundBox;
+  groundBox.SetAsBox(50, 10);
+  groundBody->CreateFixture(&groundBox, 0);
+
+  b2BodyDef dynamicBodyDef;
+  dynamicBodyDef.type = b2_dynamicBody;
+  dynamicBodyDef.position.Set(0.0f, 4.0f);
+  b2Body* dynamicBody = world.CreateBody(&dynamicBodyDef);
+  b2PolygonShape dynamicBodyShape;
+  dynamicBodyShape.SetAsBox(1.0f, 1.0f);
+  b2FixtureDef dynamicFixtureDef;
+  dynamicFixtureDef.shape = &dynamicBodyShape;
+  dynamicFixtureDef.density = 1.0f;
+  dynamicFixtureDef.density = 0.3f;
+  dynamicBody->CreateFixture(&dynamicFixtureDef);
+
+  float timeStep = engine.timeStep;
+  int32 velocityIterations = 8;
+  int32 positionIterations = 3;
+
+  int i = 0;
+  while(1) {
+    ++i;
+    world.Step(timeStep, velocityIterations, positionIterations);
+    std::cout << std::format("Dynamic Body Pos({}, {})", dynamicBody->GetPosition().x, dynamicBody->GetPosition().y) << std::endl;
+    if(i >= 60*2000)
+      return 0;
+  }
 
   engine.start();
 }

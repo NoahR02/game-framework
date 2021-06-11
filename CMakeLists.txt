@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME} ${sources})
 
 set(ALSOFT_UTILS FALSE)
 set(DBus1_FOUND FALSE)
+set(BOX2D_BUILD_TESTBED FALSE)
 
 add_subdirectory(third-party)
 
@@ -29,3 +30,4 @@ target_link_libraries(${PROJECT_NAME} cista)
 target_link_libraries(${PROJECT_NAME} EnTT::EnTT)
 target_link_libraries(${PROJECT_NAME} OpenAL)
 target_link_libraries(${PROJECT_NAME} SndFile::sndfile)
+target_link_libraries(${PROJECT_NAME}  box2d)

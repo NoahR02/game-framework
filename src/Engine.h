@@ -26,7 +26,7 @@ struct Engine {
   void render();
   void start();
 
-  float refreshRate = 1.0f / 144.0f;
+  float timeStep = 1.0f / 60.0f;
   float delta = 0.0f;
 
   Scene* currentScene;

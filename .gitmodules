@@ -19,3 +19,6 @@
 [submodule "third-party/libsndfile"]
 	path = third-party/libsndfile
 	url = https://github.com/libsndfile/libsndfile.git
+[submodule "third-party/box2d"]
+	path = third-party/box2d
+	url = https://github.com/erincatto/box2d.git
