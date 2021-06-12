@@ -18,8 +18,12 @@ add_dependencies(${PROJECT_NAME} copy_assets)
 add_custom_target(copy_shaders COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 add_dependencies(${PROJECT_NAME} copy_shaders)
 
-add_custom_target(copy_openal_libs COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/third-party/OpenAL-libs ${CMAKE_CURRENT_BINARY_DIR})
-add_dependencies(${PROJECT_NAME} copy_openal_libs)
+# Copies the OpenAL libs next to the executable.
+IF(WIN32)
+  configure_file(${CMAKE_CURRENT_BINARY_DIR}/third-party/openal-soft/OpenAL32.dll ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+ELSE()
+  configure_file(${CMAKE_CURRENT_BINARY_DIR}/third-party/openal-soft/libopenal.so ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+ENDIF()
 
 target_link_libraries(${PROJECT_NAME} glad)
 target_link_libraries(${PROJECT_NAME} glfw)
