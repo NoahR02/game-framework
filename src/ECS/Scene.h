@@ -10,6 +10,13 @@ struct Scene {
 
   entt::registry registry;
   Entity createEntity();
+
+  template<typename T, typename = std::enable_if<std::is_base_of<Entity, T>::value>>
+  T createEntitySubClass() {
+    return T(this);
+  }
+
+
   Scene() = default;
   Entity* currentCamera;
 

@@ -29,6 +29,7 @@
 #include "AL/alc.h"
 #include "AudioFile.h"
 #include "AudioSource.h"
+#include "Player.h"
 
 // TODO: Move keyboard input out of loop.
 // TODO: Add scripting
@@ -43,7 +44,7 @@ void Engine::update(float &deltaTime) {
     previous = now;
 
     auto view = currentScene->registry.view<Components::Camera, Components::Controller, Sprite, AudioSource>();
-    for(auto entityID : view) {
+    /*for(auto entityID : view) {
       Entity cameraController {entityID, this->currentScene};
       auto &controller = currentScene->registry.get<Components::Controller>(entityID);
       auto &sprite = currentScene->registry.get<Sprite>(entityID);
@@ -73,7 +74,7 @@ void Engine::update(float &deltaTime) {
         if(keys[GLFW_KEY_MINUS])
           Systems::cameraZomOut(cameraController);
       }
-    }
+    }*/
   }
 }
 
@@ -113,25 +114,22 @@ int main() {
   auto bounce = std::make_shared<AudioFile>("assets/sounds/bounce.wav");
   auto dungeonMusic = std::make_shared<AudioFile>("assets/sounds/jrpg-dungeon-loop.wav");
 
-  // Editor Camera
+ /* // Editor Camera
   auto defaultCameraID = engine.currentScene->createEntity();
   auto &defaultCamera = defaultCameraID.addComponent<Components::Camera>(engine.window->getWidth(),
                                                                          engine.window->getHeight());
-  scene.currentCamera = &defaultCameraID;
+  scene.currentCamera = &defaultCameraID;*/
 
-  auto player = engine.currentScene->createEntity();
-  auto &playerCamera = player.addComponent<Components::Camera>(engine.window->getWidth(), engine.window->getHeight());
-  auto &playerSprite = player.addComponent<Sprite>(engine.window->getWidth() / 2 - 32.0f,
-                                                   engine.window->getHeight() / 2 - 32.0f, 64.0f, 64.0f,
-                                                   TextureRectangle {0, 16, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
-  auto &playerController = player.addComponent<Components::Controller>(true);
-  auto &audioSrc = player.addComponent<AudioSource>(bounce);
+  auto player = engine.currentScene->createEntitySubClass<Player>();
+  player.getComponent<Components::Camera>().setWidth(engine.window->getWidth());
+  player.getComponent<Components::Camera>().setHeight(engine.window->getHeight());
   scene.currentCamera = &player;
+
+  //engine.window->addObserver(&defaultCamera);
+  engine.window->addObserver(&player.getComponent<Components::Camera>());
+
+  auto &audioSrc = player.addComponent<AudioSource>(bounce);
   setAudioFile(player, dungeonMusic);
-
-  engine.window->addObserver(&defaultCamera);
-  engine.window->addObserver(&playerCamera);
-
   play(player);
 
 
@@ -160,14 +158,14 @@ int main() {
   int32 velocityIterations = 8;
   int32 positionIterations = 3;
 
-  int i = 0;
+/*  int i = 0;
   while(1) {
     ++i;
     world.Step(timeStep, velocityIterations, positionIterations);
     std::cout << std::format("Dynamic Body Pos({}, {})", dynamicBody->GetPosition().x, dynamicBody->GetPosition().y) << std::endl;
     if(i >= 60*2000)
       return 0;
-  }
+  }*/
 
   engine.start();
 }

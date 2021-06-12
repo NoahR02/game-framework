@@ -38,6 +38,18 @@ namespace Components {
 
     void onNotify(Window &f, Event event) override;
 
+    void setWidth(const float width) {
+      this->width = width;
+      projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel, 0.0f);
+      mvp = projection * view;
+    }
+
+    void setHeight(const float height) {
+      this->height = height;
+      projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel,0.0f);
+      mvp = projection * view;
+    }
+
   };
 
   struct Controller {

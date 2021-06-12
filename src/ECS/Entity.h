@@ -10,6 +10,9 @@ struct Entity {
   entt::entity id;
   Scene* scene;
 
+  Entity(Scene* scene): id(scene->registry.create()), scene(scene) {
+  }
+
   template<typename T>
   bool hasComponent() {
     if (scene)

@@ -28,6 +28,6 @@ Components::Camera::Camera(float width, float height) : width(width), height(hei
 }
 
 void Components::Camera::onNotify(Window &window, Event event) {
-  width = window.getWidth();
-  height = window.getHeight();
+  setWidth(window.getWidth());
+  setHeight(window.getHeight());
 }
