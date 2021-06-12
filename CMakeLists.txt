@@ -10,6 +10,14 @@ set(ALSOFT_UTILS FALSE)
 set(DBus1_FOUND FALSE)
 set(BOX2D_BUILD_TESTBED FALSE)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
+option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
+option(BOX2D_BUILD_DOCS "Build the Box2D documentation" OFF)
+option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
+option(BUILD_SHARED_LIBS "Build Box2D as a shared library" OFF)
+
 add_subdirectory(third-party)
 
 add_custom_target(copy_assets COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets)
@@ -18,12 +26,6 @@ add_dependencies(${PROJECT_NAME} copy_assets)
 add_custom_target(copy_shaders COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 add_dependencies(${PROJECT_NAME} copy_shaders)
 
-# Copies the OpenAL libs next to the executable.
-IF(WIN32)
-  configure_file(${CMAKE_CURRENT_BINARY_DIR}/third-party/openal-soft/OpenAL32.dll ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-ELSE()
-  configure_file(${CMAKE_CURRENT_BINARY_DIR}/third-party/openal-soft/libopenal.so ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-ENDIF()
 
 target_link_libraries(${PROJECT_NAME} glad)
 target_link_libraries(${PROJECT_NAME} glfw)
@@ -34,4 +36,4 @@ target_link_libraries(${PROJECT_NAME} cista)
 target_link_libraries(${PROJECT_NAME} EnTT::EnTT)
 target_link_libraries(${PROJECT_NAME} OpenAL)
 target_link_libraries(${PROJECT_NAME} SndFile::sndfile)
-target_link_libraries(${PROJECT_NAME}  box2d)
+target_link_libraries(${PROJECT_NAME} box2d)
