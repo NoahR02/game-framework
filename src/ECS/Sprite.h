@@ -2,8 +2,8 @@
 #define RPG_SPRITE_H
 
 
-#include "TextureRectangle.h"
-#include "Color.h"
+#include "../TextureRectangle.h"
+#include "../Color.h"
 
 struct Sprite {
 

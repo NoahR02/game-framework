@@ -4,9 +4,6 @@
 
 #include <memory>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <entt/entt.hpp>
 
 #include "../Renderer/VertexArray.h"
@@ -21,36 +18,6 @@
 
 
 namespace Components {
-
-
-  struct Camera : Observer<Window> {
-    float zoomLevel = 1.0f;
-    float speed = 4.0f;
-    float width;
-    float height;
-
-    glm::mat4 projection;
-    glm::mat4 view;
-    glm::mat4 mvp;
-
-
-    Camera(float width, float height);
-
-    void onNotify(Window &f, Event event) override;
-
-    void setWidth(const float width) {
-      this->width = width;
-      projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel, 0.0f);
-      mvp = projection * view;
-    }
-
-    void setHeight(const float height) {
-      this->height = height;
-      projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel,0.0f);
-      mvp = projection * view;
-    }
-
-  };
 
   struct Controller {
     bool active;

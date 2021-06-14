@@ -11,6 +11,11 @@ struct Entity {
   Scene* scene;
 
   Entity(Scene* scene): id(scene->registry.create()), scene(scene) {
+    onCreate();
+  }
+
+  Entity(Scene* scene, entt::entity): id(id), scene(scene) {
+    onCreate();
   }
 
   template<typename T>
@@ -28,6 +33,16 @@ struct Entity {
   template<typename T>
   T& getComponent() {
     return scene->registry.get<T>(id);
+  }
+
+  virtual void onCreate() {
+  }
+
+  virtual void update(float deltaTime) {
+
+  }
+
+  virtual void render(float deltaTime) {
   }
 
 };

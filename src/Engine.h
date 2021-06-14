@@ -3,8 +3,12 @@
 
 #include <memory>
 #include <AL/alc.h>
-#include "events/Observer.h"
-#include "events/Subject.h"
+
+#include "Window.h"
+#include "GUI/Gui.h"
+#include "Renderer/Renderer.h"
+#include "ECS/Scene.h"
+
 
 struct Engine {
 
@@ -33,7 +37,6 @@ struct Engine {
 
   ~Engine();
 
-protected:
   float previous;
 
 };

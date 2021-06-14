@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../ECS/Systems.h"
+#include "../ECS/Camera.h"
 
 Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
   IMGUI_CHECKVERSION();
@@ -28,7 +29,7 @@ Gui::Gui(std::shared_ptr<Window>& window) : window(window) {
 
   glGenTextures(1, &gameViewportTexture);
   glBindTexture(GL_TEXTURE_2D, gameViewportTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, window->getWidth(), window->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, window->getViewportWidth(), window->getViewportHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameViewportTexture, 0);
@@ -61,7 +62,7 @@ void Gui::render(entt::registry& registry, entt::entity tileMapID, entt::entity 
   ImGui::End();
 
 
-  auto& camera = registry.get<Components::Camera>(cameraID);
+  auto& camera = registry.get<Camera>(cameraID);
   auto& tileMap = registry.get<Components::TileMap>(tileMapID);
   auto& staticRenderGroup = registry.get<Components::StaticRenderGroup>(tileMapID);
 
@@ -172,7 +173,7 @@ void Gui::render(entt::registry& registry, entt::entity tileMapID, entt::entity 
 
   }
 
-  ImGui::Image((void*)(intptr_t)gameViewportTexture, ImVec2(window->getWidth(), window->getHeight()), ImVec2(0, 1), ImVec2(1, 0));
+  ImGui::Image((void*)(intptr_t)gameViewportTexture, ImVec2(window->getViewportWidth(), window->getViewportHeight()), ImVec2(0, 1), ImVec2(1, 0));
   ImGui::End();
 
 

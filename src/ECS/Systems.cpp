@@ -1,5 +1,6 @@
 #include "Systems.h"
 #include "Components.h"
+#include "Camera.h"
 
 #include <vector>
 #include <iterator>
@@ -8,7 +9,7 @@
 void Systems::staticRenderGroupSystemDraw(entt::registry& registry, entt::entity entity, entt::entity cameraID) {
 
   auto& staticRenderGroup = registry.get<Components::StaticRenderGroup>(entity);
-  auto& camera = registry.get<Components::Camera>(cameraID);
+  auto& camera = registry.get<Camera>(cameraID);
 
   staticRenderGroup.vao->bind();
   staticRenderGroup.shaderProgram->bind();
@@ -113,54 +114,4 @@ void Systems::TileMapUpdate(entt::registry& registry, entt::entity entity) {
   staticRenderGroup.vao->enableAttribute(1);
   staticRenderGroup.vao->describeAttributeLayout(1, 2, GL_FLOAT, false, sizeof(float) * 5, sizeof(float) * 3);
 
-}
-
-void Systems::cameraMoveLeft(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.view = glm::translate(camera.view, glm::vec3(camera.speed, 0.0f, 0.0f));
-  camera.mvp = camera.projection * camera.view;
-}
-
-void Systems::cameraMoveRight(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.view = glm::translate(camera.view, glm::vec3(-camera.speed, 0.0f, 0.0f));
-  camera.mvp = camera.projection * camera.view;
-}
-
-void Systems::cameraMoveUp(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.view = glm::translate(camera.view, glm::vec3(0.0f, camera.speed, 0.0f));
-  camera.mvp = camera.projection * camera.view;
-}
-
-void Systems::cameraMoveDown(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.view = glm::translate(camera.view, glm::vec3(0.0f, -camera.speed, 0.0f));
-  camera.mvp = camera.projection * camera.view;
-}
-
-void Systems::cameraZoomIn(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.zoomLevel += 0.01f;
-  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel,0.0f);
-  camera.mvp = camera.projection * camera.view;
-}
-
-void Systems::cameraZomOut(Entity& cameraID) {
-
-  auto& camera = cameraID.getComponent<Components::Camera>();
-
-  camera.zoomLevel -= 0.01f;
-  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel,0.0f);
-  camera.mvp = camera.projection * camera.view;
 }

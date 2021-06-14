@@ -28,6 +28,8 @@ public:
 
   void setWidth(int width);
   void setHeight(int height);
+  float getViewportWidth();
+  float getViewportHeight();
   void setSize(int width, int height);
 
   void setWindowPosition(int x, int y);
@@ -63,6 +65,8 @@ private:
 
   float width = 1280;
   float height = 720;
+  float viewportWidth;
+  float viewportHeight;
   std::string title = "Game";
 
   int aspectRatioWidth = 16;

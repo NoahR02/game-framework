@@ -1,19 +1,4 @@
-#ifndef RPG_AUDIOSOURCE_H
-#define RPG_AUDIOSOURCE_H
-
-#include <AL/al.h>
-
-#include <utility>
-#include "ECS/Entity.h"
-#include "AudioFile.h"
-
-struct AudioSource {
-  ALuint sourceID;
-  std::shared_ptr<AudioFile> audioFile;
-
-  ~AudioSource();
-  explicit AudioSource(std::shared_ptr<AudioFile> audioFile);
-};
+#include "AudioSource.h"
 
 AudioSource::AudioSource(std::shared_ptr<AudioFile> audioFile) {
   this->audioFile = audioFile;
@@ -27,11 +12,6 @@ AudioSource::AudioSource(std::shared_ptr<AudioFile> audioFile) {
   alSourcei(sourceID, AL_LOOPING, AL_FALSE);
   alSourcei(sourceID, AL_BUFFER, audioFile->buffer);
 }
-
-AudioSource::~AudioSource() {
-  alDeleteSources(1, &sourceID);
-}
-
 
 void setAudioFile(Entity& audioSourceID, std::shared_ptr<AudioFile> audioFile) {
   auto& audioSrc = audioSourceID.getComponent<AudioSource>();
@@ -50,5 +30,6 @@ void play(Entity& audioSourceID) {
   alSourcePlay(audioSrc.sourceID);
 }
 
-
-#endif
+AudioSource::~AudioSource() {
+  alDeleteSources(1, &sourceID);
+}

@@ -57,6 +57,9 @@ int Window::loadGLFW(float &width, float &height, const char *title) {
 
   glViewport(0, 0, (int)width, (int)height);
 
+  viewportWidth = width;
+  viewportHeight = height;
+
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(messageCallback, nullptr);
 
@@ -93,7 +96,30 @@ void Window::windowResizeCB(GLFWwindow *window, int width, int height) {
   Window *windowPtr = (Window *) glfwGetWindowUserPointer(window);
   windowPtr->width = width;
   windowPtr->height = height;
-  glViewport(0, 0, width, height);
+
+  int targetWidth = 1600;
+  int targetHeight = 900;
+
+  float targetAspectRatio = static_cast<float>(targetWidth) / static_cast<float>(targetHeight);
+
+  // Letter box
+  int transformedWidth = width;
+  int transformedHeight = transformedWidth / targetAspectRatio;
+
+  if(transformedHeight > height) {
+    // Pillar box
+    transformedHeight = height;
+    transformedWidth = transformedHeight * targetAspectRatio;
+  }
+
+  int vpX = (width / 2) - (transformedWidth / 2);
+  int vpY = (height / 2) - (transformedHeight / 2);
+
+  windowPtr->viewportWidth = transformedWidth;
+  windowPtr->viewportHeight = transformedHeight;
+
+  glViewport(vpX, vpY, transformedWidth, transformedHeight);
+
   windowPtr->notify(*windowPtr, Event());
 }
 
@@ -103,6 +129,14 @@ void Window::keyCB(GLFWwindow *window, int key, int scancode, int action, int mo
 }
 
 void Window::scrollCB(GLFWwindow *window, double xoffset, double yoffset) {
+}
+
+float Window::getViewportWidth() {
+  return viewportWidth;
+}
+
+float Window::getViewportHeight() {
+  return viewportHeight;
 }
 
 

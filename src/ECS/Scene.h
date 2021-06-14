@@ -10,12 +10,15 @@ struct Scene {
 
   entt::registry registry;
   Entity createEntity();
+  std::vector<Entity*> entities;
 
   template<typename T, typename = std::enable_if<std::is_base_of<Entity, T>::value>>
   T createEntitySubClass() {
-    return T(this);
+    entities.push_back(new T(this));
+    return *reinterpret_cast<T*>(entities.back());
   }
 
+  Entity* getEntityPtr(Entity& entity);
 
   Scene() = default;
   Entity* currentCamera;

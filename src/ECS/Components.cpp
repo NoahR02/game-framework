@@ -20,14 +20,3 @@ Components::StaticRenderGroup::StaticRenderGroup(const std::string& texturePath)
 
 Components::TileMap::TileMap(int tileWidth, int tileHeight): tileWidth(tileHeight), tileHeight(tileHeight) {
 }
-
-Components::Camera::Camera(float width, float height) : width(width), height(height) {
-  projection = glm::ortho(0.0f, width, height, 0.0f);
-  view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-  mvp = projection * view;
-}
-
-void Components::Camera::onNotify(Window &window, Event event) {
-  setWidth(window.getWidth());
-  setHeight(window.getHeight());
-}
