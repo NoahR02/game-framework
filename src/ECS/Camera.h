@@ -25,14 +25,16 @@ struct Camera : Observer<Window> {
 
   void setWidth(const float width) {
     this->width = width;
-    projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel, 0.0f)
-                 * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
+    projection = glm::ortho(-width / 2 / zoomLevel, width / 2 / zoomLevel,
+                                   height / 2 / zoomLevel, -height / 2 / zoomLevel)
+                        * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
     mvp = projection * view;
   }
 
   void setHeight(const float height) {
     this->height = height;
-    projection = glm::ortho(0.0f, width/zoomLevel, height/zoomLevel, 0.0f)
+    projection = glm::ortho(-width / 2 / zoomLevel, width / 2 / zoomLevel,
+                            height / 2 / zoomLevel, -height / 2 / zoomLevel)
                  * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
     mvp = projection * view;
   }
