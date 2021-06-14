@@ -45,5 +45,6 @@ void cameraMoveUp(Entity& entity);
 void cameraMoveDown(Entity& entity);
 void cameraZoomIn(Entity& entity);
 void cameraZoomOut(Entity& entity);
+void cameraRecalculate(Entity& entity);
 
 #endif //RPG_CAMERA_H

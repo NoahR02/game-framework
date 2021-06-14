@@ -1,7 +1,9 @@
 #include "Camera.h"
 
 Camera::Camera(float width, float height) : width(width), height(height) {
-  projection = glm::ortho(0.0f, width, height, 0.0f);
+  zoomLevel = 1;
+  projection = glm::ortho(-width/2/zoomLevel, width/2/zoomLevel, height/2/zoomLevel, -height/2/zoomLevel)
+      * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
   view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
   mvp = projection * view;
 }
@@ -47,10 +49,10 @@ void cameraMoveDown(Entity& entity) {
 
 void cameraZoomIn(Entity& entity) {
   auto& camera = entity.getComponent<Camera>();
-
   camera.zoomLevel += 0.01f;
-  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel, 0.0f)
-                      * glm::scale(glm::mat4(1.0f), glm::vec3(camera.width / 1600, camera.height / 900, 1.0f));
+
+  camera.projection = glm::ortho(-camera.width/2/camera.zoomLevel, camera.width/2/camera.zoomLevel, camera.height/2/camera.zoomLevel, -camera.height/2/camera.zoomLevel)
+      * glm::scale(glm::mat4(1.0f), glm::vec3(camera.width / 1600, camera.height / 900, 1.0f));
   camera.mvp = camera.projection * camera.view;
 }
 
@@ -58,8 +60,17 @@ void cameraZoomOut(Entity& entity) {
   auto& camera = entity.getComponent<Camera>();
 
   camera.zoomLevel -= 0.01f;
-  camera.projection = glm::ortho(0.0f, camera.width/camera.zoomLevel, camera.height/camera.zoomLevel, 0.0f)
+  camera.projection = glm::ortho(-camera.width/2/camera.zoomLevel, camera.width/2/camera.zoomLevel, camera.height/2/camera.zoomLevel, -camera.height/2/camera.zoomLevel)
                * glm::scale(glm::mat4(1.0f), glm::vec3(camera.width / 1600, camera.height / 900, 1.0f));
+
+  camera.mvp = camera.projection * camera.view;
+}
+
+void cameraRecalculate(Entity& entity) {
+  auto& camera = entity.getComponent<Camera>();
+
+  camera.projection = glm::ortho(-camera.width/2/camera.zoomLevel, camera.width/2/camera.zoomLevel, camera.height/2/camera.zoomLevel, -camera.height/2/camera.zoomLevel)
+      * glm::scale(glm::mat4(1.0f), glm::vec3(camera.width / 1600, camera.height / 900, 1.0f));
 
   camera.mvp = camera.projection * camera.view;
 }

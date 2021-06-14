@@ -17,27 +17,23 @@ int main() {
 
   engine.currentScene = &scene;
 
-  auto bounce = std::make_shared<AudioFile>("assets/sounds/bounce.wav");
+  auto player = engine.currentScene->createEntitySubClass<Player>();
+
+  auto& playerCamera = player.getComponent<Camera>();
+  playerCamera.setWidth(engine.window->getViewportWidth());
+  playerCamera.setHeight(engine.window->getViewportHeight());
+  cameraRecalculate(player);
+
+  player.setX(0);
+  player.setY(0);
+
+  scene.currentCamera = &player;
+  engine.window->addObserver(&playerCamera);
+
   auto dungeonMusic = std::make_shared<AudioFile>("assets/sounds/jrpg-dungeon-loop.wav");
 
-  /* // Editor Camera
-   auto defaultCameraID = engine.currentScene->createEntity();
-   auto &defaultCamera = defaultCameraID.addComponent<Components::Camera>(engine.window->getWidth(),
-                                                                          engine.window->getHeight());
-   scene.currentCamera = &defaultCameraID;*/
-
-  auto player = engine.currentScene->createEntitySubClass<Player>();
-  player.getComponent<Camera>().setWidth(engine.window->getViewportWidth());
-  player.getComponent<Camera>().setHeight(engine.window->getViewportHeight());
-  scene.currentCamera = &player;
-
-  //engine.window->addObserver(&defaultCamera);
-  engine.window->addObserver(&player.getComponent<Camera>());
-
-  auto &audioSrc = player.addComponent<AudioSource>(bounce);
-  setAudioFile(player, dungeonMusic);
+  auto &audioSrc = player.addComponent<AudioSource>(dungeonMusic);
   play(player);
-
 
   b2Vec2 gravity {0.0f, -10.0f};
   b2World world(gravity);

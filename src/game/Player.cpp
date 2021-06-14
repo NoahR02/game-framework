@@ -2,47 +2,58 @@
 #include "../ECS/Camera.h"
 #include "../ECS/Components.h"
 #include "../ECS/Sprite.h"
-#include "../ECS/Systems.h"
 #include "../Input/Keyboard.h"
 
 Player::Player(Scene* scene) : Entity(scene) {
   addComponent<Camera>(0, 0);
   addComponent<Sprite>(1200 / 2 - 32.0f,
-                        1200 / 2 - 32.0f, 64.0f, 64.0f,
-                        TextureRectangle {16, 16, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
+                       1200 / 2 - 32.0f, 64.0f, 64.0f,
+                       TextureRectangle {16, 16, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
   addComponent<Components::Controller>();
 }
 
 void Player::render(float deltaTime) {
-  //std::cout << "Rendering from player" << std::endl;
   Entity::render(deltaTime);
 }
 
 void Player::update(float deltaTime) {
   Entity::update(deltaTime);
-  auto &controller = getComponent<Components::Controller>();
-  auto &sprite = getComponent<Sprite>();
-  auto &camera = getComponent<Camera>();
+  auto& controller = getComponent<Components::Controller>();
+  auto& sprite = getComponent<Sprite>();
 
   if(keys[GLFW_KEY_W]) {
-    cameraMoveUp(*this);
-    sprite.y -= camera.speed;
+    setY(sprite.y - speed);
   }
   if(keys[GLFW_KEY_A]) {
-    cameraMoveLeft(*this);
-    sprite.x -= camera.speed;
+    setX(sprite.x - speed);
   }
   if(keys[GLFW_KEY_S]) {
-    cameraMoveDown(*this);
-    sprite.y += camera.speed;
+    setY(sprite.y + speed);
   }
   if(keys[GLFW_KEY_D]) {
-    cameraMoveRight(*this);
-    sprite.x += camera.speed;
+    setX(sprite.x + speed);
   }
 
   if(keys[GLFW_KEY_EQUAL])
     cameraZoomIn(*this);
   if(keys[GLFW_KEY_MINUS])
     cameraZoomOut(*this);
+}
+
+void Player::setY(float y) {
+  auto& sprite = getComponent<Sprite>();
+  sprite.y = y;
+
+  auto& camera = getComponent<Camera>();
+  camera.view[3][1] = -y - sprite.height/2;
+  cameraRecalculate(*this);
+}
+
+void Player::setX(float x) {
+  auto& sprite = getComponent<Sprite>();
+  sprite.x = x;
+
+  auto& camera = getComponent<Camera>();
+  camera.view[3][0] = -x - sprite.width/2;
+  cameraRecalculate(*this);
 }

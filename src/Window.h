@@ -28,6 +28,7 @@ public:
 
   void setWidth(int width);
   void setHeight(int height);
+  void calculateViewport();
   float getViewportWidth();
   float getViewportHeight();
   void setSize(int width, int height);

@@ -55,10 +55,7 @@ int Window::loadGLFW(float &width, float &height, const char *title) {
   }
   glfwSwapInterval(0);
 
-  glViewport(0, 0, (int)width, (int)height);
-
-  viewportWidth = width;
-  viewportHeight = height;
+  calculateViewport();
 
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(messageCallback, nullptr);
@@ -97,28 +94,7 @@ void Window::windowResizeCB(GLFWwindow *window, int width, int height) {
   windowPtr->width = width;
   windowPtr->height = height;
 
-  int targetWidth = 1600;
-  int targetHeight = 900;
-
-  float targetAspectRatio = static_cast<float>(targetWidth) / static_cast<float>(targetHeight);
-
-  // Letter box
-  int transformedWidth = width;
-  int transformedHeight = transformedWidth / targetAspectRatio;
-
-  if(transformedHeight > height) {
-    // Pillar box
-    transformedHeight = height;
-    transformedWidth = transformedHeight * targetAspectRatio;
-  }
-
-  int vpX = (width / 2) - (transformedWidth / 2);
-  int vpY = (height / 2) - (transformedHeight / 2);
-
-  windowPtr->viewportWidth = transformedWidth;
-  windowPtr->viewportHeight = transformedHeight;
-
-  glViewport(vpX, vpY, transformedWidth, transformedHeight);
+  windowPtr->calculateViewport();
 
   windowPtr->notify(*windowPtr, Event());
 }
@@ -176,14 +152,17 @@ void Window::setTitle(const char *title) { glfwSetWindowTitle(window, title); }
 
 void Window::setWidth(int width) {
   glfwSetWindowSize(window, width, this->height);
+  calculateViewport();
 }
 
 void Window::setHeight(int height) {
   glfwSetWindowSize(window, this->width, height);
+  calculateViewport();
 }
 
 void Window::setSize(int width, int height) {
   glfwSetWindowSize(window, width, height);
+  calculateViewport();
 }
 
 void Window::setWindowPosition(int x, int y) {
@@ -240,4 +219,29 @@ void Window::setWindowIcon(const char *pathToImage) {}
 Window::~Window() {
   glfwDestroyWindow(window);
   glfwTerminate();
+}
+
+void Window::calculateViewport() {
+  int targetWidth = 1600;
+  int targetHeight = 900;
+
+  float targetAspectRatio = static_cast<float>(targetWidth) / static_cast<float>(targetHeight);
+
+  // Letter box
+  int transformedWidth = width;
+  int transformedHeight = transformedWidth / targetAspectRatio;
+
+  if(transformedHeight > height) {
+    // Pillar box
+    transformedHeight = height;
+    transformedWidth = transformedHeight * targetAspectRatio;
+  }
+
+  int vpX = (width / 2) - (transformedWidth / 2);
+  int vpY = (height / 2) - (transformedHeight / 2);
+
+  viewportWidth = transformedWidth;
+  viewportHeight = transformedHeight;
+
+  glViewport(vpX, vpY, transformedWidth, transformedHeight);
 }
