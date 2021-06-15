@@ -8,12 +8,16 @@
 #include "../Audio/AudioSource.h"
 #include "../ECS/Sprite.h"
 #include "../ECS/Camera.h"
+#include "../ECS/Body.h"
 
 #include <fstream>
 
 int main() {
   Engine engine;
   Scene scene;
+
+  scene.world.setScaleX(16);
+  scene.world.setScaleY(16);
 
   engine.currentScene = &scene;
 
@@ -23,6 +27,9 @@ int main() {
   playerCamera.setWidth(engine.window->getViewportWidth());
   playerCamera.setHeight(engine.window->getViewportHeight());
   cameraRecalculate(player);
+
+  auto& playerBody = player.addBody(glm::vec2(0, 0));
+  playerBody.setType(Body::BodyType::DYNAMIC_BODY);
 
   player.setX(0);
   player.setY(0);
@@ -35,47 +42,6 @@ int main() {
   auto &audioSrc = player.addComponent<AudioSource>(dungeonMusic);
   play(player);
 
-  b2Vec2 gravity {0.0f, -10.0f};
-  b2World world(gravity);
-  b2BodyDef groundBodyDef;
-  groundBodyDef.position.Set(0.0f, -10.0f);
-  b2Body* groundBody = world.CreateBody(&groundBodyDef);
-  b2PolygonShape groundBox;
-  groundBox.SetAsBox(50, 10);
-  groundBody->CreateFixture(&groundBox, 0);
-
-  b2BodyDef dynamicBodyDef;
-  dynamicBodyDef.type = b2_dynamicBody;
-  dynamicBodyDef.position.Set(0.0f, 4.0f);
-  b2Body* dynamicBody = world.CreateBody(&dynamicBodyDef);
-  b2PolygonShape dynamicBodyShape;
-  dynamicBodyShape.SetAsBox(1.0f, 1.0f);
-  b2FixtureDef dynamicFixtureDef;
-  dynamicFixtureDef.shape = &dynamicBodyShape;
-  dynamicFixtureDef.density = 1.0f;
-  dynamicFixtureDef.density = 0.3f;
-  dynamicBody->CreateFixture(&dynamicFixtureDef);
-
-  float timeStep = engine.timeStep;
-  int32 velocityIterations = 8;
-  int32 positionIterations = 3;
-
-  /*{
-    int i = 0;
-    while(1) {
-      ++i;
-      world.Step(timeStep, velocityIterations, positionIterations);
-      std::cout << std::format("Dynamic Body Pos({}, {})", dynamicBody->GetPosition().x, dynamicBody->GetPosition().y)
-                << std::endl;
-      if(i >= 60 * 2000)
-        return 0;
-    }
-
-    Player *player1 = static_cast<Player *>(engine.currentScene->getEntityPtr(player));
-    * /
-  }*/
-
-
   float scale = 4;
   for(float x = 0; x < 2; ++x) {
     for(float y = 0; y < 2; ++y) {
@@ -85,20 +51,43 @@ int main() {
     }
   }
 
-  auto spriteID2 = engine.currentScene->createEntity();
-  spriteID2.addComponent<Sprite>(0.0f, 0.0f,
-                                 engine.window->getViewportWidth(), engine.window->getViewportHeight(),
-                                 TextureRectangle {0 , 0, 16, 16},
-                                 Color {1.0f, 1.0f, 1.0f, 0.0f}
+
+  auto platform = engine.currentScene->createEntity();
+  Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 500 * scale, 16 * scale,
+                                TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
+
+  Body& platformBody = platform.addBody(glm::vec2(platformSprite.x, platformSprite.y));
+  platformBody.setType(Body::BodyType::STATIC_BODY);
+
+  auto whiteSquare = engine.currentScene->createEntity();
+  whiteSquare.addComponent<Sprite>(0.0f, 0.0f,
+                                   engine.window->getViewportWidth(), engine.window->getViewportHeight(),
+                                   TextureRectangle {0 , 0, 16, 16},
+                                   Color {1.0f, 1.0f, 1.0f, 0.0f}
   );
+
 
   engine.previous = (float) glfwGetTime();
 
+  int32 velocityIterations = 8;
+  int32 positionIterations = 3;
+
   while(!engine.window->shouldWindowClose()) {
-    auto& camera = engine.currentScene->currentCamera->getComponent<Camera>();
-    spriteID2.getComponent<Sprite>().width = engine.window->getViewportWidth() / (engine.window->getViewportWidth()/ 1600);
-    spriteID2.getComponent<Sprite>().height = engine.window->getViewportHeight() / (engine.window->getViewportHeight()/ 900);
     engine.update(engine.delta);
+
+    auto playerPhysicsPos = playerBody.getPosition();
+    player.setX(playerPhysicsPos.x);
+    player.setY(playerPhysicsPos.y);
+
+
+    auto platformPhysicsPos = platformBody.getPosition();
+    platformSprite.x = platformPhysicsPos.x;
+    platformSprite.y = platformPhysicsPos.y;
+
+    auto& camera = engine.currentScene->currentCamera->getComponent<Camera>();
+    whiteSquare.getComponent<Sprite>().width = engine.window->getViewportWidth() / (engine.window->getViewportWidth() / 1600);
+    whiteSquare.getComponent<Sprite>().height = engine.window->getViewportHeight() / (engine.window->getViewportHeight() / 900);
+
     engine.render();
   }
 

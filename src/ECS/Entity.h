@@ -3,7 +3,9 @@
 
 
 #include "Scene.h"
+#include "Body.h"
 #include <entt/entt.hpp>
+#include <iostream>
 
 struct Entity {
 
@@ -29,6 +31,17 @@ struct Entity {
   T& addComponent(Args&&... args) {
     return scene->registry.emplace<T>(id, std::forward<Args>(args)...);
   }
+
+  Body& addBody(const glm::vec2 bodyPos) {
+    Body& body = scene->registry.emplace<Body>(id);
+    body.setScaleX(scene->world.getScaleX());
+    body.setScaleY(scene->world.getScaleY());
+    body.setPosition(bodyPos);
+
+    scene->world.createBody(body);
+
+    return body;
+  };
 
   template<typename T>
   T& getComponent() {

@@ -3,6 +3,9 @@
 
 
 #include <entt/entt.hpp>
+#include <box2d/box2d.h>
+#include <glm/vec2.hpp>
+#include "../World.h"
 
 struct Entity;
 
@@ -22,6 +25,8 @@ struct Scene {
 
   Scene() = default;
   Entity* currentCamera;
+
+  World world;
 
 };
 

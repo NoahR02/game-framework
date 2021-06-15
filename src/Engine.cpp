@@ -44,6 +44,8 @@ void Engine::update(float &deltaTime) {
   if(deltaTime >= timeStep) {
     previous = now;
 
+    currentScene->world.world->Step(timeStep, 8, 3);
+
     for(auto* entity : currentScene->entities) {
       entity->update(delta);
     }
@@ -111,31 +113,4 @@ Engine::~Engine() {
 }
 
 void Engine::start() {
-
-  float scale = 4;
-  for(float x = 0; x < 2; ++x) {
-    for(float y = 0; y < 2; ++y) {
-      auto spriteID = currentScene->createEntity();
-      spriteID.addComponent<Sprite>(x * 16 * scale, y * 16 * scale, 16 * scale, 16 * scale,
-                                    TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
-    }
-  }
-
-  auto spriteID2 = currentScene->createEntity();
-  spriteID2.addComponent<Sprite>(0.0f, 0.0f,
-                                window->getViewportWidth(), window->getViewportHeight(),
-                                TextureRectangle {0 , 0, 16, 16},
-                                Color {1.0f, 1.0f, 1.0f, 0.0f}
-  );
-
-  previous = (float) glfwGetTime();
-
-  while(!window->shouldWindowClose()) {
-    spriteID2.getComponent<Sprite>().width = window->getViewportWidth();
-    spriteID2.getComponent<Sprite>().height = window->getViewportHeight();
-    update(delta);
-    render();
-  }
-
-
 }
