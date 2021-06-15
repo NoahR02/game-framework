@@ -11,7 +11,7 @@ struct Player : Entity {
   void render(float deltaTime) override;
   void update(float deltaTime) override;
 
-  float speed = 1;
+  float speed = 20;
 
   void setY(float y);
   void setX(float x);

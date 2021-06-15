@@ -10,6 +10,8 @@ Player::Player(Scene* scene) : Entity(scene) {
                        1200 / 2 - 32.0f, 64.0f, 64.0f,
                        TextureRectangle {16, 16, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
   addComponent<Components::Controller>();
+  auto& playerBody = addBody(glm::vec2(0, 0));
+  playerBody.setType(Body::BodyType::DYNAMIC_BODY);
 }
 
 void Player::render(float deltaTime) {
@@ -17,27 +19,34 @@ void Player::render(float deltaTime) {
 }
 
 void Player::update(float deltaTime) {
+  auto& playerBody = getComponent<Body>();
+  auto& playerSprite = getComponent<Sprite>();
+
   Entity::update(deltaTime);
   auto& controller = getComponent<Components::Controller>();
   auto& sprite = getComponent<Sprite>();
 
   if(keys[GLFW_KEY_W]) {
-    setY(sprite.y - speed);
+    playerBody.setLinearVelocity({playerBody.getLinearVelocity().x, -speed*2});
   }
   if(keys[GLFW_KEY_A]) {
-    setX(sprite.x - speed);
+    playerBody.setLinearVelocity({-speed, playerBody.getLinearVelocity().y});
   }
   if(keys[GLFW_KEY_S]) {
-    setY(sprite.y + speed);
+    //playerBody.setLinearVelocity({playerBody.getLinearVelocity().x, speed});
   }
   if(keys[GLFW_KEY_D]) {
-    setX(sprite.x + speed);
+    playerBody.setLinearVelocity({speed, playerBody.getLinearVelocity().y});
   }
 
   if(keys[GLFW_KEY_EQUAL])
     cameraZoomIn(*this);
   if(keys[GLFW_KEY_MINUS])
     cameraZoomOut(*this);
+
+  auto playerPhysicsPos = playerBody.getPosition();
+  setX(playerPhysicsPos.x-playerSprite.width/2);
+  setY(playerPhysicsPos.y-playerSprite.height/2);
 }
 
 void Player::setY(float y) {

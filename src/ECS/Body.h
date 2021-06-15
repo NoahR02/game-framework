@@ -18,13 +18,17 @@ struct Body {
   BodyType bodyType = BodyType::DYNAMIC_BODY;
 
   glm::vec2 getPosition();
+  glm::vec2 getLinearVelocity();
 
-  void setPosition(const glm::vec2& position) {
+  void setInitPosition(const glm::vec2& position) {
     properties.position.Set(position.x/scaleX, position.y/scaleY);
   }
 
+  void setLinearVelocity(const glm::vec2& velocity);
+  void setPosition(const glm::vec2& position);
+
   void setShape(const glm::vec2& size) {
-    shape.SetAsBox(size.x/scaleX, size.y/scaleY);
+    shape.SetAsBox(size.x/scaleX/2, size.y/scaleY/2);
   }
 
   void setType(BodyType bodyType) {

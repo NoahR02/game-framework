@@ -9,14 +9,12 @@
 struct World {
 
   World() {
-    world = new b2World(b2Vec2(0.0f, 10.0f));
+    world = new b2World(b2Vec2(0.0f, 100.0f));
   }
 
   void createBody(Body& body) {
 
     body.body = world->CreateBody(&body.properties);
-
-    body.setShape(glm::vec2(16, 16));
 
     b2FixtureDef dynamicFixtureDef;
     dynamicFixtureDef.shape = &body.shape;

@@ -28,11 +28,7 @@ int main() {
   playerCamera.setHeight(engine.window->getViewportHeight());
   cameraRecalculate(player);
 
-  auto& playerBody = player.addBody(glm::vec2(0, 0));
-  playerBody.setType(Body::BodyType::DYNAMIC_BODY);
-
-  player.setX(0);
-  player.setY(0);
+  player.getComponent<Body>().setPosition({12 * 16, 0.0f});
 
   scene.currentCamera = &player;
   engine.window->addObserver(&playerCamera);
@@ -48,12 +44,13 @@ int main() {
       auto spriteID = engine.currentScene->createEntity();
       spriteID.addComponent<Sprite>(x * 16 * scale, y * 16 * scale, 16 * scale, 16 * scale,
                                     TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
+      spriteID.addBody({x * 16 * scale, y * 16 * scale});
     }
   }
 
 
   auto platform = engine.currentScene->createEntity();
-  Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 500 * scale, 16 * scale,
+  Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 10 * scale, 16 * scale,
                                 TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
 
   Body& platformBody = platform.addBody(glm::vec2(platformSprite.x, platformSprite.y));
@@ -74,15 +71,6 @@ int main() {
 
   while(!engine.window->shouldWindowClose()) {
     engine.update(engine.delta);
-
-    auto playerPhysicsPos = playerBody.getPosition();
-    player.setX(playerPhysicsPos.x);
-    player.setY(playerPhysicsPos.y);
-
-
-    auto platformPhysicsPos = platformBody.getPosition();
-    platformSprite.x = platformPhysicsPos.x;
-    platformSprite.y = platformPhysicsPos.y;
 
     auto& camera = engine.currentScene->currentCamera->getComponent<Camera>();
     whiteSquare.getComponent<Sprite>().width = engine.window->getViewportWidth() / (engine.window->getViewportWidth() / 1600);
