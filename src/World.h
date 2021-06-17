@@ -8,48 +8,25 @@
 
 struct World {
 
-  World() {
-    world = new b2World(b2Vec2(0.0f, 100.0f));
-  }
+  float pixelsPerMeter = 16.0f;
+  int32 velocityIterations = 8;
+  int32 positionIterations = 3;
 
-  void createBody(Body& body) {
+  World();
 
-    body.body = world->CreateBody(&body.properties);
+  [[nodiscard]] glm::vec2 pixelsToWorld(glm::vec2 input) const;
+  [[nodiscard]] glm::vec2 worldToPixels(glm::vec2 input) const;
 
-    b2FixtureDef dynamicFixtureDef;
-    dynamicFixtureDef.shape = &body.shape;
-    dynamicFixtureDef.density = 1.0f;
-    auto fixture = body.body->CreateFixture(&dynamicFixtureDef);
+  void step(float deltaTime) const;
 
-  }
+  void createBody(Body& body) const;
 
-  ~World() {
-    delete world;
-  }
+  void setGravity(const glm::vec2& gravity);
+  [[nodiscard]] glm::vec2 getGravity() const;
 
-  void setScaleX(float scaleX) {
-    if(scaleX != 0)
-      this->scaleX = scaleX;
-  }
-
-  void setScaleY(float scaleY) {
-    if(scaleY != 0)
-      this->scaleY = scaleY;
-  }
-
-  float getScaleX() const {
-    return scaleX;
-  }
-  float getScaleY() const {
-    return scaleY;
-  }
-
-
-public:
-  b2World* world;
 private:
-  float scaleX;
-  float scaleY;
+  b2World* world;
+  glm::vec2 gravity {0.0f, 100.0f};
 
 };
 

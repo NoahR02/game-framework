@@ -1,23 +1,14 @@
 #include "../Engine.h"
 
-#include "AL/al.h"
 #include <box2d/box2d.h>
 
-#include "../ECS/Components.h"
 #include "Player.h"
 #include "../Audio/AudioSource.h"
-#include "../ECS/Sprite.h"
 #include "../ECS/Camera.h"
-#include "../ECS/Body.h"
-
-#include <fstream>
 
 int main() {
   Engine engine;
   Scene scene;
-
-  scene.world.setScaleX(16);
-  scene.world.setScaleY(16);
 
   engine.currentScene = &scene;
 
@@ -28,7 +19,10 @@ int main() {
   playerCamera.setHeight(engine.window->getViewportHeight());
   cameraRecalculate(player);
 
+
   player.getComponent<Body>().setPosition({12 * 16, 0.0f});
+  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape = PolygonShape{16, 16};
+  player.getComponent<Body>().addCollisionShape(shape);
 
   scene.currentCamera = &player;
   engine.window->addObserver(&playerCamera);
@@ -52,9 +46,14 @@ int main() {
   auto platform = engine.currentScene->createEntity();
   Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 10 * scale, 16 * scale,
                                 TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
+  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape2 = PolygonShape{16, 16};
 
   Body& platformBody = platform.addBody(glm::vec2(platformSprite.x, platformSprite.y));
+
+  platformBody.addCollisionShape(shape2);
+  platformBody.setPosition({12 * 16, 0.0f});
   platformBody.setType(Body::BodyType::STATIC_BODY);
+
 
   auto whiteSquare = engine.currentScene->createEntity();
   whiteSquare.addComponent<Sprite>(0.0f, 0.0f,

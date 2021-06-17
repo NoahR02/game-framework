@@ -44,7 +44,7 @@ void Engine::update(float &deltaTime) {
   if(deltaTime >= timeStep) {
     previous = now;
 
-    currentScene->world.world->Step(timeStep, 8, 3);
+    currentScene->world.step(deltaTime);
 
     for(auto* entity : currentScene->entities) {
       entity->update(delta);

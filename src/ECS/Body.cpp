@@ -3,7 +3,7 @@
 
 glm::vec2 Body::getPosition() {
   auto position = body->GetPosition();
-  return glm::vec2(position.x*scaleX, position.y*scaleY);
+  return glm::vec2(position.x*16, position.y*16);
 }
 
 void Body::setLinearVelocity(const glm::vec2& velocity) {
@@ -16,22 +16,9 @@ glm::vec2 Body::getLinearVelocity() {
 }
 
 void Body::setPosition(const glm::vec2& position) {
-  body->SetTransform({position.x/scaleX, position.y/scaleY}, body->GetAngle());
+  body->SetTransform({position.x/16, position.y/16}, body->GetAngle());
 }
 
-void Body::setScaleX(float scaleX) {
-  if(scaleX != 0)
-    this->scaleX = scaleX;
-}
+void Body::setSize(const glm::vec2& position) {
 
-void Body::setScaleY(float scaleY) {
-  if(scaleY != 0)
-    this->scaleY = scaleY;
-}
-
-float Body::getScaleX() const {
-  return scaleX;
-}
-float Body::getScaleY() const {
-  return scaleY;
 }
