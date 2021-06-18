@@ -8,9 +8,17 @@
 
 struct World {
 
-  float pixelsPerMeter = 16.0f;
   int32 velocityIterations = 8;
   int32 positionIterations = 3;
+  float pixelsPerMeter = 16;
+
+  [[nodiscard]] glm::vec2 pixelsToWorld(const glm::vec2& input) {
+    return {input.x / pixelsPerMeter, input.y / pixelsPerMeter};
+  }
+
+  [[nodiscard]] glm::vec2 worldToPixels(const glm::vec2& input) {
+    return {input.x * pixelsPerMeter, input.y * pixelsPerMeter};
+  }
 
   World();
 
@@ -19,7 +27,7 @@ struct World {
 
   void step(float deltaTime) const;
 
-  void createBody(Body& body) const;
+  void createBody(Body& body);
 
   void setGravity(const glm::vec2& gravity);
   [[nodiscard]] glm::vec2 getGravity() const;

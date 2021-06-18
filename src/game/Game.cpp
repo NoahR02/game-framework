@@ -21,8 +21,14 @@ int main() {
 
 
   player.getComponent<Body>().setPosition({12 * 16, 0.0f});
-  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape = PolygonShape{16, 16};
+  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape = PolygonShape{};
+  PolygonShape& playerShape = std::get<PolygonShape>(shape);
+  Sprite& playerSprite = player.getComponent<Sprite>();
+  playerShape.world = &engine.currentScene->world;
+  playerShape.setAsBox(glm::vec2{playerSprite.width, playerSprite.height});
   player.getComponent<Body>().addCollisionShape(shape);
+  player.setX(0);
+  player.setY(0);
 
   scene.currentCamera = &player;
   engine.window->addObserver(&playerCamera);
@@ -46,13 +52,14 @@ int main() {
   auto platform = engine.currentScene->createEntity();
   Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 10 * scale, 16 * scale,
                                 TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
-  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape2 = PolygonShape{16, 16};
+  std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape2 = PolygonShape{};
 
   Body& platformBody = platform.addBody(glm::vec2(platformSprite.x, platformSprite.y));
-
+  platformBody.setPosition({platformSprite.x + platformSprite.width/2, platformSprite.y + platformSprite.height/2});
+  PolygonShape& platformShape = std::get<PolygonShape>(shape2);
+  platformShape.world = &engine.currentScene->world;
+  platformShape.setAsBox({platformSprite.width, platformSprite.height});
   platformBody.addCollisionShape(shape2);
-  platformBody.setPosition({12 * 16, 0.0f});
-  platformBody.setType(Body::BodyType::STATIC_BODY);
 
 
   auto whiteSquare = engine.currentScene->createEntity();
@@ -64,9 +71,6 @@ int main() {
 
 
   engine.previous = (float) glfwGetTime();
-
-  int32 velocityIterations = 8;
-  int32 positionIterations = 3;
 
   while(!engine.window->shouldWindowClose()) {
     engine.update(engine.delta);

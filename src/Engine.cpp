@@ -54,9 +54,9 @@ void Engine::update(float &deltaTime) {
     for(auto entityID : view) {
       auto &sprite = currentScene->registry.get<Sprite>(entityID);
       auto &body = currentScene->registry.get<Body>(entityID);
-      auto physicsPos = body.getPosition();
+      auto physicsPos = body.getPosition( );
       sprite.x = physicsPos.x - sprite.width/2;
-      sprite.y = physicsPos.y - sprite.height/2;
+      sprite.y = physicsPos.y - sprite.height;
     }
 
   }

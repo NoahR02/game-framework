@@ -4,23 +4,12 @@ World::World() {
   world = new b2World(b2Vec2{gravity.x, gravity.y});
 }
 
-[[nodiscard]] glm::vec2 World::pixelsToWorld(glm::vec2 input) const {
-  input.x *= pixelsPerMeter;
-  input.y *= pixelsPerMeter;
-  return input;
-}
-
-[[nodiscard]] glm::vec2 World::worldToPixels(glm::vec2 input) const {
-  input.x /= pixelsPerMeter;
-  input.y /= pixelsPerMeter;
-  return input;
-}
-
 void World::step(float deltaTime) const {
   world->Step(deltaTime, velocityIterations, positionIterations);
 }
 
-void World::createBody(Body& body) const {
+void World::createBody(Body& body) {
+  body.world = this;
   body.body = world->CreateBody(&body.properties);
 }
 
