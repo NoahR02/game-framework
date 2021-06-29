@@ -32,11 +32,7 @@
 #include "game/Player.h"
 #include "ECS/Camera.h"
 
-// TODO: Move keyboard input out of loop.
 // TODO: Add scripting
-// TODO: Add physics.
-// TODO: Add sound.
-// TODO: Add cmake code to move openal dll next to the exe
 
 void Engine::update(float &deltaTime) {
   const auto now = (float) glfwGetTime();

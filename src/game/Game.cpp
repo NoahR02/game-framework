@@ -50,7 +50,7 @@ int main() {
 
 
   auto platform = engine.currentScene->createEntity();
-  Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * scale, 16 * scale,
+  Sprite& platformSprite = platform.addComponent<Sprite>(0.0f, 450.0f, 16 * 10 * scale, 16 * scale,
                                 TextureRectangle {0, 32, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
   std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape> shape2 = PolygonShape{};
 
