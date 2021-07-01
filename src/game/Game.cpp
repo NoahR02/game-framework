@@ -13,15 +13,26 @@ int main() {
   Scene scene;
   engine.currentScene = &scene;
 
+  auto defaultCameraID = engine.currentScene->createEntity();
+  auto& defaultCamera = defaultCameraID.addComponent<Camera>(engine.window->getViewportWidth(), engine.window->getViewportHeight());
+  engine.currentScene->currentCamera = &defaultCameraID;
+
   // Set gravity to 0 because it is a RPG.
   scene.world.setGravity(glm::vec2{0.0f, 0.0f});
 
   auto square = engine.currentScene->createEntity();
   auto& squareSprite = square.addComponent<Sprite>();
 
-  squareSprite.x = 16, squareSprite.y = 16;
-  squareSprite.width = 16, squareSprite.height = 16;
-  squareSprite.texturePosition = {0, 0, 16, 16};
+  squareSprite.x = 0, squareSprite.y = 0;
+  squareSprite.width = 64, squareSprite.height = 64;
+  squareSprite.texturePosition = {48, 48, 16, 16};
+
+  auto bg = engine.currentScene->createEntity();
+  auto& bgSprite = bg.addComponent<Sprite>();
+
+  bgSprite.x = 0, bgSprite.y = 0;
+  bgSprite.width = 1600, bgSprite.height = 900;
+  bgSprite.texturePosition = {16, 16, 16, 16};
 
   auto player = engine.currentScene->createEntitySubClass<Player>();
 
@@ -38,19 +49,20 @@ int main() {
   playerShape.setAsBox(engine.currentScene->world, glm::vec2{playerSprite.width, playerSprite.height});
   player.getComponent<Body>().addCollisionShape(shape);
 
-  scene.currentCamera = &player;
+  //scene.currentCamera = &player;
   engine.window->addObserver(&playerCamera);
 
   engine.previous = (float)glfwGetTime();
 
   while(!engine.window->shouldWindowClose()) {
-    engine.window->clear(0.0f, 0.0f, 0.0f, 1.0f);
-    engine.updatePhysics(engine.delta);
+    engine.window->clear(255.0f, 255.0f, 255.0f, 1.0f);
+   // engine.updatePhysics(engine.delta);
 
     auto &camera = engine.currentScene->currentCamera->getComponent<Camera>();
 
     engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *engine.texture);
     {
+      engine.renderer->draw(bgSprite);
       engine.renderer->draw(playerSprite);
       engine.renderer->draw(squareSprite);
     }

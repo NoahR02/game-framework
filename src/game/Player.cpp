@@ -6,9 +6,10 @@
 
 Player::Player(Scene* scene) : Entity(scene) {
   addComponent<Camera>(0, 0);
-  addComponent<Sprite>(1200 / 2 - 32.0f,
-                       1200 / 2 - 32.0f, 64.0f, 64.0f,
-                       TextureRectangle {16, 0, 16, 16}, Color {1.0f, 1.0f, 1.0f, 1.0f});
+  addComponent<Sprite>(0.0f,0.0f,
+                       64.0f, 64.0f,
+                       TextureRectangle {16, 0, 16, 16},
+                       Color {1.0f, 1.0f, 1.0f, 1.0f});
   addComponent<Components::Controller>();
   auto& playerBody = addBody(glm::vec2(0, 0));
   playerBody.setType(Body::BodyType::DYNAMIC_BODY);

@@ -12,6 +12,7 @@
 struct Camera : Observer<Window> {
   float zoomLevel = 1.0f;
   float speed = 4.0f;
+
   float width;
   float height;
 
@@ -24,17 +25,21 @@ struct Camera : Observer<Window> {
   void onNotify(Window& window, Event event) override;
 
   void setWidth(const float width) {
+    int viewportXAndY[2];
+    glGetIntegerv(GL_VIEWPORT, viewportXAndY);
     this->width = width;
-    projection = glm::ortho(-width / 2 / zoomLevel, width / 2 / zoomLevel,
-                                   height / 2 / zoomLevel, -height / 2 / zoomLevel)
+    projection = glm::ortho((float)viewportXAndY[0], width / 2 / zoomLevel,
+                                   height / 2 / zoomLevel, (float)viewportXAndY[1])
                         * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
     mvp = projection * view;
   }
 
   void setHeight(const float height) {
+    int viewportXAndY[2];
+    glGetIntegerv(GL_VIEWPORT, viewportXAndY);
     this->height = height;
-    projection = glm::ortho(-width / 2 / zoomLevel, width / 2 / zoomLevel,
-                            height / 2 / zoomLevel, -height / 2 / zoomLevel)
+    projection = glm::ortho((float)viewportXAndY[0], width / 2 / zoomLevel,
+                            height / 2 / zoomLevel, (float)viewportXAndY[1])
                  * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
     mvp = projection * view;
   }

@@ -9,9 +9,6 @@
 
 struct Entity;
 
-//template<typename T>
-//concept DerivedEntity = std::is_base_of<Entity, T>::value;
-
 struct Scene {
 
   entt::registry registry;

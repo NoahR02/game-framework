@@ -49,7 +49,6 @@ void Renderer::endDynamicBatch() {
     indices.clear();
     indices.resize(dynamicSprites.size() * 6);
     ebo->fillBuffer(dynamicSprites.size() * 6 * sizeof(unsigned int), GL_DYNAMIC_DRAW);
-    std::cout << "resized ind" << std::endl;
   }
 
   unsigned int tmp = 0;

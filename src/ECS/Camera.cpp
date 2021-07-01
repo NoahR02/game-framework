@@ -1,9 +1,13 @@
 #include "Camera.h"
 
 Camera::Camera(float width, float height) : width(width), height(height) {
+
+  int viewportXAndY[2];
+  glGetIntegerv(GL_VIEWPORT, viewportXAndY);
+
   zoomLevel = 1;
   projection =
-      glm::ortho(-width / 2 / zoomLevel, width / 2 / zoomLevel, height / 2 / zoomLevel, -height / 2 / zoomLevel)
+      glm::ortho((float)viewportXAndY[0], width / 2 / zoomLevel, height / 2 / zoomLevel, (float)viewportXAndY[1])
       * glm::scale(glm::mat4(1.0f), glm::vec3(width / 1600, height / 900, 1.0f));
   view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
   mvp = projection * view;
