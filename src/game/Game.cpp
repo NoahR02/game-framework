@@ -19,10 +19,8 @@ int main() {
   auto square = engine.currentScene->createEntity();
   auto& squareSprite = square.addComponent<Sprite>();
 
-  squareSprite.x = 16;
-  squareSprite.y = 16;
-  squareSprite.width = 16;
-  squareSprite.height = 16;
+  squareSprite.x = 16, squareSprite.y = 16;
+  squareSprite.width = 16, squareSprite.height = 16;
   squareSprite.texturePosition = {0, 0, 16, 16};
 
   auto player = engine.currentScene->createEntitySubClass<Player>();
@@ -46,8 +44,7 @@ int main() {
   engine.previous = (float)glfwGetTime();
 
   while(!engine.window->shouldWindowClose()) {
-    engine.window->setBackgroundColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+    engine.window->clear(0.0f, 0.0f, 0.0f, 1.0f);
     engine.updatePhysics(engine.delta);
 
     auto &camera = engine.currentScene->currentCamera->getComponent<Camera>();

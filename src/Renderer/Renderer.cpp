@@ -11,7 +11,11 @@ void Renderer::draw(const Components::TileMap& tilemap) {
 }
 
 void Renderer::beginDynamicBatch(glm::mat4& projectionMatrix, ShaderProgram& shaderProgram, Texture& textureAtlas) {
-
+  if(batchStarted) {
+    std::cerr << "Batch already started. End the previous batch." << std::endl;
+    return;
+  }
+  batchStarted = true;
   dynamicSprites.clear();
 
   this->projectionMatrix = &projectionMatrix;
@@ -20,6 +24,10 @@ void Renderer::beginDynamicBatch(glm::mat4& projectionMatrix, ShaderProgram& sha
 }
 
 void Renderer::endDynamicBatch() {
+  if(!batchStarted) {
+    std::cerr << "Start a batch before ending one." << std::endl;
+    return;
+  }
   vertexArray->bind();
 
   if (dynamicSprites.size() * 16 * sizeof(float) > prevVertArrSize) {
@@ -104,6 +112,8 @@ void Renderer::endDynamicBatch() {
 
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
+
+  batchStarted = false;
 }
 
 Renderer::Renderer() {

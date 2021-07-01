@@ -209,8 +209,12 @@ void Window::setFullscreen(bool fullscreen) {
 
 }
 
-void Window::setBackgroundColor(float r, float g, float b, float a) {
+void Window::clear(float r, float g, float b, float a) {
   glClearColor(r / 255, g / 255, b / 255, a);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Window::clear() {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 

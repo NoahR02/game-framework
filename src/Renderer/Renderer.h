@@ -42,6 +42,9 @@ struct Renderer {
   std::size_t prevVertArrSize = 0;
   std::size_t prevIndArrSize = 0;
 
+private:
+  bool batchStarted = false;
+
 };
 
 

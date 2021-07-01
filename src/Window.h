@@ -41,7 +41,8 @@ public:
   void setVisible(bool visible);
   void setFullscreen(bool fullscreen);
 
-  void setBackgroundColor(float r, float g, float b, float a);
+  void clear(float r, float g, float b, float a);
+  void clear();
   void setWindowIcon(const char* pathToImage);
 
 
