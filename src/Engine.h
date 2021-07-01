@@ -26,9 +26,7 @@ struct Engine {
   ALCdevice* device;
   ALCcontext* context;
 
-  void update(float& deltaTime);
-  void render();
-  void start();
+  void updatePhysics(float& deltaTime);
 
   float timeStep = 1.0f / 60.0f;
   float delta = 0.0f;

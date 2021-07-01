@@ -16,9 +16,9 @@ struct PolygonShape {
 
   b2PolygonShape polygon;
 
-  void set(const std::vector<glm::vec2>& vertices);
+  void set(World& world, const std::vector<glm::vec2>& vertices);
 
-  void setAsBox(glm::vec2 size);
+  void setAsBox(World& world, glm::vec2 size);
 
 };
 
@@ -27,7 +27,7 @@ struct CircleShape {
 
   struct World* world;
 
-  void set(const glm::vec2& position, float radius);
+  void set(World& world, const glm::vec2& position, float radius);
 
 };
 
