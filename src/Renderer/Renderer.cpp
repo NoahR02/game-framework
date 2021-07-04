@@ -30,19 +30,16 @@ void Renderer::endDynamicBatch() {
   }
   vertexArray->bind();
 
-  if (dynamicSprites.size() * 16 * sizeof(float) > prevVertArrSize) {
-    vbo->bind();
-    vertices.clear();
-    vertices.resize(dynamicSprites.size() * 16);
-    vbo->fillBuffer(static_cast<signed long long int>(dynamicSprites.size() * 16 * sizeof(float)), GL_DYNAMIC_DRAW);
+  vbo->bind();
+  vertices.clear();
+  vertices.resize(dynamicSprites.size() * 16);
+  vbo->fillBuffer(static_cast<signed long long int>(dynamicSprites.size() * 16 * sizeof(float)), GL_DYNAMIC_DRAW);
 
-    vertexArray->enableAttribute(0);
-    vertexArray->describeAttributeLayout(0, 2, GL_FLOAT, false, sizeof(float) * 4, 0);
+  vertexArray->enableAttribute(0);
+  vertexArray->describeAttributeLayout(0, 2, GL_FLOAT, false, sizeof(float) * 4, 0);
 
-    vertexArray->enableAttribute(1);
-    vertexArray->describeAttributeLayout(1, 2, GL_FLOAT, false, sizeof(float) * 4, sizeof(float) * 2);
-
-  }
+  vertexArray->enableAttribute(1);
+  vertexArray->describeAttributeLayout(1, 2, GL_FLOAT, false, sizeof(float) * 4, sizeof(float) * 2);
 
   if (dynamicSprites.size() * 6 * sizeof(unsigned int) > prevIndArrSize) {
     ebo->bind();
@@ -110,7 +107,6 @@ void Renderer::endDynamicBatch() {
   shaderProgram->setUniform1i("uTexture", 0);
 
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-
 
   batchStarted = false;
 }

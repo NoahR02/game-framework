@@ -1,6 +1,8 @@
 #include "../Engine.h"
-#include "Player.h"
 #include "../ECS/Camera.h"
+
+#include "../Input/Keyboard.h"
+#include <sstream>
 
 // TODO:
 //  Move game assets from engine into game.
@@ -20,53 +22,134 @@ int main() {
   // Set gravity to 0 because it is a RPG.
   scene.world.setGravity(glm::vec2{0.0f, 0.0f});
 
-  auto square = engine.currentScene->createEntity();
-  auto& squareSprite = square.addComponent<Sprite>();
+  auto player = engine.currentScene->createEntity();
+  auto& playerSprite = player.addComponent<Sprite>();
 
-  squareSprite.x = 0, squareSprite.y = 0;
-  squareSprite.width = 64, squareSprite.height = 64;
-  squareSprite.texturePosition = {48, 48, 16, 16};
+  /*playerSprite.construct(200, 200,
+                         64, 64,
+                         {16*8, 48, 16, 16}, {});*/
 
-  auto bg = engine.currentScene->createEntity();
-  auto& bgSprite = bg.addComponent<Sprite>();
+  const char* map = "assets/tiny-16-basic/basictiles.png\n"
+                    "TTTTTTTTTTTTTTT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TTTTTTTTTTTTTTT\n";
 
-  bgSprite.x = 0, bgSprite.y = 0;
-  bgSprite.width = 1600, bgSprite.height = 900;
-  bgSprite.texturePosition = {16, 16, 16, 16};
+  std::string line;
+  std::istringstream tmpMap(map);
+  std::getline(tmpMap, line);
 
-  auto player = engine.currentScene->createEntitySubClass<Player>();
+  std::shared_ptr<Texture> texture;
 
-  auto& playerCamera = player.getComponent<Camera>();
-  playerCamera.setWidth(engine.window->getViewportWidth());
-  playerCamera.setHeight(engine.window->getViewportHeight());
+  if(line.empty()) {
+    std::cerr << "No file to use." << std::endl;
+    texture = engine.texture;
+  } else {
+    texture = std::make_shared<Texture>(line);
+    int tilePositionX = 0;
+    int tilePositionY = 0;
+    int scale = 5;
+    while(std::getline(tmpMap, line)) {
+
+      for(int i = 0; i < line.size(); ++i) {
+        switch(line[i]) {
+          case 'G': {
+            auto tile = scene.createEntity();
+            auto& tileSprite = tile.addComponent<Sprite>();
+            tileSprite.construct(tilePositionX  * scale, tilePositionY  * scale, 16 * scale, 16 * scale,
+                                   {16*3, 16 * 1, 16, 16},{});
+            break;
+          }
+
+          case 'T': {
+
+            auto tile = scene.createEntity();
+            auto& tileSprite = tile.addComponent<Sprite>();
+            tileSprite.construct(tilePositionX  * scale, tilePositionY  * scale, 16 * scale, 16 * scale,
+                                 {16*4, 16 * 9, 16, 16},{});
+
+            auto grass = scene.createEntity();
+            auto& grassSprite = grass.addComponent<Sprite>();
+            grassSprite.construct(tilePositionX  * scale, tilePositionY  * scale, 16 * scale, 16 * scale,
+                                  {16*3, 16 * 1, 16, 16},{});
+            break;
+          }
+
+          case 'W': {
+            auto tile = scene.createEntity();
+            auto& tileSprite = tile.addComponent<Sprite>();
+            tileSprite.construct(tilePositionX  * scale, tilePositionY  * scale, 16 * scale, 16 * scale,
+                                 {16*5, 16 * 2, 16, 16},{});
+            break;
+          }
+
+          default: {
+            auto tile = scene.createEntity();
+            auto& tileSprite = tile.addComponent<Sprite>();
+            tileSprite.construct(tilePositionX  * scale, tilePositionY  * scale, 16 * scale, 16 * scale,
+                                 {16*3, 16 * 1, 16, 16},{});
+            break;
+          }
+
+        }
+        tilePositionX += 16;
+      }
+        tilePositionX = 0;
+        tilePositionY += 16;
+    }
+  }
 
   #define Shape std::variant<PolygonShape, CircleShape, EdgeShape, ChainShape>
   Shape shape = PolygonShape{};
 
-  auto& playerShape = std::get<PolygonShape>(shape);
-  auto& playerSprite = player.getComponent<Sprite>();
-
-  playerShape.setAsBox(engine.currentScene->world, glm::vec2{playerSprite.width, playerSprite.height});
-  player.getComponent<Body>().addCollisionShape(shape);
-
-  //scene.currentCamera = &player;
-  engine.window->addObserver(&playerCamera);
+  engine.window->addObserver(&defaultCamera);
 
   engine.previous = (float)glfwGetTime();
 
+  auto characters = std::make_shared<Texture>("assets/tiny-16-basic/characters.png");
+
   while(!engine.window->shouldWindowClose()) {
+    const auto now = (float) glfwGetTime();
+    auto deltaTime = now - engine.previous;
+    if(deltaTime >= 1.0f/75) {
+      engine.previous = now;
+
+      if(keys[GLFW_KEY_EQUAL]) cameraZoomIn(defaultCameraID);
+      if(keys[GLFW_KEY_MINUS]) cameraZoomOut(defaultCameraID);
+
+      if(keys[GLFW_KEY_W]) cameraMoveUp(defaultCameraID);
+      if(keys[GLFW_KEY_A]) cameraMoveLeft(defaultCameraID);
+      if(keys[GLFW_KEY_S]) cameraMoveDown(defaultCameraID);
+      if(keys[GLFW_KEY_D]) cameraMoveRight(defaultCameraID);
+
+    }
+
+    auto& camera = engine.currentScene->currentCamera->getComponent<Camera>();
     engine.window->clear(255.0f, 255.0f, 255.0f, 1.0f);
-   // engine.updatePhysics(engine.delta);
+    //engine.updatePhysics(engine.delta);
 
-    auto &camera = engine.currentScene->currentCamera->getComponent<Camera>();
-
-    engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *engine.texture);
+    engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *texture);
     {
-      engine.renderer->draw(bgSprite);
-      engine.renderer->draw(playerSprite);
-      engine.renderer->draw(squareSprite);
+      auto view = engine.currentScene->registry.view<Sprite>();
+      for(auto entityID : view) {
+        //if(scene->registry.any_of<Player>(entityID);)
+        auto &sprite = engine.currentScene->registry.get<Sprite>(entityID);
+        engine.renderer->draw(sprite);
+      }
     }
     engine.renderer->endDynamicBatch();
+
+    /*engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *characters);
+    {
+      engine.renderer->draw(playerSprite);
+    }
+    engine.renderer->endDynamicBatch();*/
 
     engine.window->swapBuffers();
     engine.window->pollEvents();

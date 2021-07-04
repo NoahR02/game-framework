@@ -26,7 +26,7 @@ void Engine::updatePhysics(float &deltaTime) {
     currentScene->world.step(deltaTime);
 
     for(auto* entity : currentScene->entities) {
-      entity->update(delta);
+      //entity->update(delta);
     }
 
     auto view = currentScene->registry.view<Body, Sprite>();

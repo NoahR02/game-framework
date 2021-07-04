@@ -22,9 +22,6 @@ struct World {
 
   World();
 
-  [[nodiscard]] glm::vec2 pixelsToWorld(glm::vec2 input) const;
-  [[nodiscard]] glm::vec2 worldToPixels(glm::vec2 input) const;
-
   void step(float deltaTime) const;
 
   void createBody(Body& body);
