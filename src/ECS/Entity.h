@@ -33,7 +33,7 @@ struct Entity {
     return scene->registry.emplace<T>(id, std::forward<Args>(args)...);
   }
 
-  Body& addBody(const glm::vec2 bodyPos) {
+  Body& addBody() {
     Body& body = scene->registry.emplace<Body>(id);
     scene->world.createBody(body);
 

@@ -22,6 +22,10 @@ struct Camera : Observer<Window> {
 
 
   Camera(float width, float height);
+  void construct(float width, float height) {
+    setWidth(width);
+    setHeight(height);
+  }
   void onNotify(Window& window, Event event) override;
 
   void setWidth(const float width) {

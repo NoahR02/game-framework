@@ -13,7 +13,17 @@ void PolygonShape::set(World& world, const std::vector<glm::vec2>& vertices) {
 
 void PolygonShape::setAsBox(World& world, glm::vec2 size) {
   size = world.pixelsToWorld(size);
-  polygon.SetAsBox(size.x / 2, size.y / 2);
+  //polygon.SetAsBox(size.x / 2, size.y / 2);
+  //polygon.SetAsBox(size.x / 2, size.y / 2, {size.x / 2, size.y / 2}, 0.0f);
+
+  std::vector<b2Vec2> points = {
+    b2Vec2(size.x, size.y),
+    b2Vec2(size.x, 0),
+    b2Vec2(0, 0),
+    b2Vec2(0, size.y),
+  };
+
+  polygon.Set(&points.front(), points.size());
 }
 
 void CircleShape::set(World& world, const glm::vec2& position, float radius) {

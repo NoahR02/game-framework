@@ -21,3 +21,11 @@ void World::setGravity(const glm::vec2& gravity) {
 [[nodiscard]] glm::vec2 World::getGravity() const {
   return gravity;
 }
+
+void World::setDebugDraw(b2Draw& b2Draw) {
+  world->SetDebugDraw(&b2Draw);
+}
+
+void World::drawDebugData() {
+  world->DebugDraw();
+}

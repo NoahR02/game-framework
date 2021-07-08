@@ -29,6 +29,9 @@ struct World {
   void setGravity(const glm::vec2& gravity);
   [[nodiscard]] glm::vec2 getGravity() const;
 
+  void setDebugDraw(b2Draw& b2Draw);
+  void drawDebugData();
+
 private:
   b2World* world;
   glm::vec2 gravity {0.0f, 100.0f};

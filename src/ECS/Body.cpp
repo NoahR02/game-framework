@@ -1,4 +1,5 @@
 #include <glm/vec2.hpp>
+#include <glm/trigonometric.hpp>
 #include "Body.h"
 
 #include "../src/World.h"
@@ -23,7 +24,6 @@ void Body::setPosition(const glm::vec2& position) {
 }
 
 void Body::setSize(const glm::vec2& position) {
-
 }
 
 void Body::addCollisionShape(Shapes& shape) {
@@ -50,4 +50,8 @@ void Body::setType(BodyType bodyType) {
     else if(bodyType == BodyType::STATIC_BODY)
       body->SetType(b2_staticBody);
   }
+}
+
+float Body::getAngle() const {
+  return glm::degrees(body->GetAngle());
 }

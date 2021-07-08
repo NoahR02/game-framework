@@ -21,6 +21,7 @@ struct Body {
 
   glm::vec2 getPosition();
   glm::vec2 getLinearVelocity();
+  float getAngle() const;
 
   void setLinearVelocity(const glm::vec2& velocity);
   void setPosition(const glm::vec2& position);
@@ -42,8 +43,7 @@ private:
     explicit Body(BodyType type) {
       bodyType = type;
     }
-
-  };
+};
 
 
 #endif //RPG_BODY_H

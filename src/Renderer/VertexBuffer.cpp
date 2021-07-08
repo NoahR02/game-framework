@@ -13,7 +13,7 @@ void VertexBuffer::fillBuffer(signed long long int size, GLenum usage) {
 }
 
 void VertexBuffer::fillBufferSubData(std::vector<float> &data, int offset) {
-  glBufferSubData(GL_ARRAY_BUFFER, (intptr_t)offset, static_cast<GLsizeiptr>(sizeof(float) * data.size()), &data.front());
+  glBufferSubData(GL_ARRAY_BUFFER, (intptr_t)offset, static_cast<GLsizeiptr>(sizeof(float) * (data.size())), &data.front());
 }
 
 void VertexBuffer::bind() {
