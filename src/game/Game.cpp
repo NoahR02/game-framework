@@ -194,7 +194,7 @@ int main() {
   body.setPosition({playerSprite.x, playerSprite.y});
   body.addCollisionShape(shape);
 
-/*  auto enemy = engine.currentScene->createEntity();
+  auto enemy = engine.currentScene->createEntity();
   auto& enemySprite = enemy.addComponent<Sprite>();
   enemySprite.construct(400, 200, 16 * 4, 16 * 4, 0.0f, {16 * 1, 16 * 4, 16, 16}, {});
   auto& enemyBody = enemy.addBody();
@@ -202,12 +202,12 @@ int main() {
   Shape enemyShape = PolygonShape{};
   std::get<PolygonShape>(enemyShape).setAsBox(engine.currentScene->world, {enemySprite.width, enemySprite.height});
   enemyBody.setPosition({enemySprite.x, enemySprite.y});
-  enemyBody.addCollisionShape(enemyShape);*/
+  enemyBody.addCollisionShape(enemyShape);
 
 
-  DebugDraw debugDraw;
-  engine.currentScene->world.setDebugDraw(debugDraw);
-  debugDraw.SetFlags(b2Draw::e_shapeBit);
+ // DebugDraw debugDraw;
+  //engine.currentScene->world.setDebugDraw(debugDraw);
+  //debugDraw.SetFlags(b2Draw::e_shapeBit);
 
   engine.previous = (float)glfwGetTime();
   while(!engine.window->shouldWindowClose()) {
@@ -272,12 +272,12 @@ int main() {
     engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *characters);
     {
       engine.renderer->draw(playerSprite);
-      //engine.renderer->draw(enemySprite);
+      engine.renderer->draw(enemySprite);
     }
     engine.renderer->endDynamicBatch();
 
-    debugDraw.projectionMatrix = engine.currentScene->currentCamera->getComponent<Camera>().mvp;
-    engine.currentScene->world.drawDebugData();
+    //debugDraw.projectionMatrix = engine.currentScene->currentCamera->getComponent<Camera>().mvp;
+    //engine.currentScene->world.drawDebugData();
 
     engine.window->swapBuffers();
     engine.window->pollEvents();

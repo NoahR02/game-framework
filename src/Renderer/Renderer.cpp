@@ -52,8 +52,6 @@ void Renderer::endDynamicBatch() {
   std::size_t i = 0;
   std::size_t j = 0;
 
-  glm::mat4 test(1.0f);
-
   for(const auto& sprite : dynamicSprites) {
 
     float spriteX = sprite->texturePosition.x / (float) texture->width;
@@ -61,23 +59,24 @@ void Renderer::endDynamicBatch() {
     float spriteWidth = sprite->texturePosition.width / (float) texture->width;
     float spriteHeight = sprite->texturePosition.height / (float) texture->height;
 
-    glm::mat4 transform(1.0f);
-
     glm::vec4 point1 = {sprite->x, sprite->y, 1.0f, 1.0f};
     glm::vec4 point2 = {sprite->x, sprite->y + sprite->height, 1.0f, 1.0f};
     glm::vec4 point3 = {sprite->x + sprite->width, sprite->y, 1.0f, 1.0f};
     glm::vec4 point4 = {sprite->x + sprite->width, sprite->y + sprite->height, 1.0f, 1.0f};
 
-    if(sprite->rotation > 0.0f || sprite->rotation < 0.0f) {
-      std::cout << "Degrees: " << sprite->rotation << std::endl;
+    if(sprite->rotation > 0 || sprite->rotation < 0) {
+      glm::mat4 transform(1.0f);
+
+
+      transform = glm::translate(transform, {sprite->x, sprite->y, 1.0f});
       transform = glm::rotate(transform, glm::radians(sprite->rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-      /*point1 = transform * point1;
+      transform = glm::translate(transform, {-sprite->x, -sprite->y, 1.0f});
+
+      point1 = transform * point1;
       point2 = transform * point2;
       point3 = transform * point3;
-      point4 = transform * point4;*/
+      point4 = transform * point4;
     }
-
-    test = transform;
 
 
     //* Vertices *//*                                                                                                      // Texture Coords:
@@ -120,7 +119,6 @@ void Renderer::endDynamicBatch() {
   texture->bind();
 
   shaderProgram->setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(*projectionMatrix));
-  shaderProgram->setUniformMatrix4fv("test", 1, false, glm::value_ptr(test));
   shaderProgram->setUniform1i("uTexture", 0);
 
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
