@@ -131,3 +131,7 @@ Renderer::Renderer() {
   vbo = std::make_unique<VertexBuffer>();
   ebo = std::make_unique<ElementBuffer>();
 }
+
+void Renderer::draw(StaticBatch& staticBatch) {
+  staticBatch.draw();
+}

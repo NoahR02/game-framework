@@ -17,44 +17,31 @@ struct DebugDraw : public b2Draw {
   glm::mat4 projectionMatrix;
   float pixelsPerMeter = 16;
 
+  VertexArray vao;
+  VertexBuffer vbo;
+  ElementBuffer ebo;
+  std::vector<float> vertices;
+  std::vector<unsigned int> indices;
+  ShaderProgram shaderProgram{"shaders/defaultColorVertex.vert", "shaders/defaultColorFragment.frag"};
+
+  int tmp = 0;
+
   virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {}
   virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
 
-    ShaderProgram shaderProgram("shaders/defaultColorVertex.vert", "shaders/defaultColorFragment.frag");
-    shaderProgram.bind();
-
-    shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(projectionMatrix));
-
-    std::vector<float> tmpVertices;
-    tmpVertices.reserve(vertexCount * 2);
-
     for(int i = 0; i < vertexCount; ++i) {
-      tmpVertices.push_back(vertices[i].x * pixelsPerMeter);
-      tmpVertices.push_back(vertices[i].y * pixelsPerMeter);
+      this->vertices.push_back(vertices[i].x * pixelsPerMeter);
+      this->vertices.push_back(vertices[i].y * pixelsPerMeter);
     }
 
-    VertexArray vao;
-    vao.bind();
+    indices.push_back(tmp + 0);
+    indices.push_back(tmp + 1);
+    indices.push_back(tmp + 2);
+    indices.push_back(tmp + 2);
+    indices.push_back(tmp + 0);
+    indices.push_back(tmp + 3);
 
-    VertexBuffer vbo;
-    ElementBuffer ebo;
-
-    std::vector<unsigned int> indices = {
-        0, 1, 2,
-        2, 0, 3
-    };
-
-    vbo.bind();
-    ebo.bind();
-
-    vbo.fillBuffer(tmpVertices);
-    ebo.fillBuffer(indices);
-
-    vao.enableAttribute(0);
-    vao.describeAttributeLayout(0, 2, GL_FLOAT);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
+    tmp += 4;
   }
   virtual void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) {}
   virtual void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) {}
@@ -86,6 +73,18 @@ int main() {
                          16*7, 16*7, 0.0f,
                          {16*7, 48, 16, 16}, {});
 
+/*  const char* map = "assets/tiny-16-basic/basictiles.png\n"
+                    "TTTTTTTTTTTTTTT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "WWWWWGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TGGGGGGGGGGGGGT\n"
+                    "TTTTTTTTTTTTTTT\n";*/
+
   const char* map = "assets/tiny-16-basic/basictiles.png\n"
                     "TTTTTTTTTTTTTTT\n"
                     "WWWWWGGGGGGGGGT\n"
@@ -98,11 +97,14 @@ int main() {
                     "TGGGGGGGGGGGGGT\n"
                     "TTTTTTTTTTTTTTT\n";
 
+
   std::string line;
   std::istringstream tmpMap(map);
   std::getline(tmpMap, line);
 
   std::shared_ptr<Texture> texture;
+
+  StaticBatch staticBatch(engine.currentScene->currentCamera->getComponent<Camera>().mvp, *engine.shaderProgram, *texture);
 
   if(line.empty()) {
     std::cerr << "No file to use." << std::endl;
@@ -204,10 +206,9 @@ int main() {
   enemyBody.setPosition({enemySprite.x, enemySprite.y});
   enemyBody.addCollisionShape(enemyShape);
 
-
- // DebugDraw debugDraw;
-  //engine.currentScene->world.setDebugDraw(debugDraw);
-  //debugDraw.SetFlags(b2Draw::e_shapeBit);
+  DebugDraw debugDraw;
+  engine.currentScene->world.setDebugDraw(debugDraw);
+  debugDraw.SetFlags(b2Draw::e_shapeBit);
 
   engine.previous = (float)glfwGetTime();
   while(!engine.window->shouldWindowClose()) {
@@ -231,25 +232,25 @@ int main() {
 
       if (keys[ GLFW_KEY_W ]) {
         playerMoveUp(player);
-        cameraMoveUp(*engine.currentScene->currentCamera);
+        //cameraMoveUp(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 48, 16, 16};
       }
 
       if (keys[ GLFW_KEY_A ]) {
         playerMoveLeft(player);
-        cameraMoveLeft(*engine.currentScene->currentCamera);
+        //cameraMoveLeft(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 16 * 1, 16, 16};
       }
 
       if (keys[ GLFW_KEY_S ]) {
         playerMoveDown(player);
-        cameraMoveDown(*engine.currentScene->currentCamera);
+        //cameraMoveDown(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 16 * 0, 16, 16};
       }
 
       if (keys[ GLFW_KEY_D ]) {
         playerMoveRight(player);
-        cameraMoveRight(*engine.currentScene->currentCamera);
+        //cameraMoveRight(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 16 * 2, 16, 16};
       }
     }
@@ -268,7 +269,6 @@ int main() {
     }
     engine.renderer->endDynamicBatch();
 
-
     engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *characters);
     {
       engine.renderer->draw(playerSprite);
@@ -276,8 +276,26 @@ int main() {
     }
     engine.renderer->endDynamicBatch();
 
-    //debugDraw.projectionMatrix = engine.currentScene->currentCamera->getComponent<Camera>().mvp;
-    //engine.currentScene->world.drawDebugData();
+    debugDraw.projectionMatrix = engine.currentScene->currentCamera->getComponent<Camera>().mvp;
+    engine.currentScene->world.drawDebugData();
+
+    debugDraw.vao.bind();
+    debugDraw.vbo.bind();
+    debugDraw.ebo.bind();
+
+    debugDraw.vao.enableAttribute(0);
+    debugDraw.vao.describeAttributeLayout(0, 2, GL_FLOAT);
+
+    debugDraw.vbo.fillBuffer(debugDraw.vertices);
+    debugDraw.ebo.fillBuffer(debugDraw.indices);
+
+    debugDraw.shaderProgram.bind();
+    debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
+
+    glDrawElements(GL_TRIANGLES, debugDraw.indices.size(), GL_UNSIGNED_INT, nullptr);
+    debugDraw.vertices.clear();
+    debugDraw.indices.clear();
+    debugDraw.tmp = 0;
 
     engine.window->swapBuffers();
     engine.window->pollEvents();
