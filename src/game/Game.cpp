@@ -219,6 +219,8 @@ int main() {
       300.0f, 250.0f
   };
 
+  std::cout << triangleVertices.size() << std::endl;
+
   triangleVao.bind();
   triangleVbo.bind();
   triangleVao.enableAttribute(0);
@@ -233,6 +235,9 @@ int main() {
       500.0f, 500.0f
   };
 
+  lineVao.bind();
+  lineVbo.bind();
+
   lineVao.enableAttribute(0);
   lineVao.describeAttributeLayout(0, 2, GL_FLOAT);
   lineVbo.fillBuffer(lineVertices);
@@ -243,14 +248,9 @@ int main() {
   std::vector<float> circleVertices = {};
 
   auto computeCircleVertices = [](float x, float y, float radius, int numberOfSides) -> std::vector<float> {
-
-    float unitCircle = glm::pi<float>() * 2.0f;
     std::vector<float> circleVertices{ x, y };
 
     for(int angle = 0; angle <= 360; ++angle) {
-      //std::cout << "X Angle: " << (radius * glm::sin(angle * unitCircle / numberOfSides)) << std::endl;
-      //circleVertices.push_back(x + (radius * glm::sin(angle * unitCircle / numberOfSides)));
-      //circleVertices.push_back(y + (radius * glm::cos(angle * unitCircle / numberOfSides)));
       circleVertices.push_back(x + (radius * glm::sin(glm::radians( static_cast<float>(angle) ))));
       circleVertices.push_back(y + (radius * glm::cos(glm::radians( static_cast<float>(angle) ))));
     }
@@ -359,32 +359,20 @@ int main() {
 
     {
       triangleVao.bind();
-      triangleVbo.bind();
-      triangleVao.enableAttribute(0);
-      triangleVao.describeAttributeLayout(0, 2, GL_FLOAT);
-      triangleVbo.fillBuffer(triangleVertices);
       debugDraw.shaderProgram.bind();
       debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
-      glDrawArrays(GL_TRIANGLES, 0, triangleVertices.size() / 2);
+      glDrawArrays(GL_TRIANGLES, 0, triangleVertices.size());
     }
 
     {
       lineVao.bind();
-      lineVbo.bind();
-      lineVao.enableAttribute(0);
-      lineVao.describeAttributeLayout(0, 2, GL_FLOAT);
-      lineVbo.fillBuffer(lineVertices);
       debugDraw.shaderProgram.bind();
       debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
-      glDrawArrays(GL_LINES, 0, lineVertices.size() /2);
+      glDrawArrays(GL_LINES, 0, lineVertices.size() / 2);
     }
 
     {
       circleVao.bind();
-      circleVbo.bind();
-      circleVao.enableAttribute(0);
-      circleVao.describeAttributeLayout(0, 2, GL_FLOAT);
-      circleVbo.fillBuffer(circleVertices);
       debugDraw.shaderProgram.bind();
       debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
       glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertices.size() / 2);
