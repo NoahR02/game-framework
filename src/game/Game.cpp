@@ -210,16 +210,74 @@ int main() {
   engine.currentScene->world.setDebugDraw(debugDraw);
   debugDraw.SetFlags(b2Draw::e_shapeBit);
 
+  VertexArray triangleVao;
+  VertexBuffer triangleVbo;
+
+  std::vector<float> triangleVertices = {
+      250.0f, 200.0f,
+      200.0f, 250.0f,
+      300.0f, 250.0f
+  };
+
+  triangleVao.bind();
+  triangleVbo.bind();
+  triangleVao.enableAttribute(0);
+  triangleVao.describeAttributeLayout(0, 2, GL_FLOAT);
+  triangleVbo.fillBuffer(triangleVertices);
+
+  VertexArray lineVao;
+  VertexBuffer lineVbo;
+
+  std::vector<float> lineVertices = {
+      400.0f, 400.0f,
+      500.0f, 500.0f
+  };
+
+  lineVao.enableAttribute(0);
+  lineVao.describeAttributeLayout(0, 2, GL_FLOAT);
+  lineVbo.fillBuffer(lineVertices);
+
+  VertexArray circleVao;
+  VertexBuffer circleVbo;
+
+  std::vector<float> circleVertices = {};
+
+  auto computeCircleVertices = [](float x, float y, float radius, int numberOfSides) -> std::vector<float> {
+
+    float unitCircle = glm::pi<float>() * 2.0f;
+    std::vector<float> circleVertices{ x, y };
+
+    for(int angle = 0; angle <= 360; ++angle) {
+      //std::cout << "X Angle: " << (radius * glm::sin(angle * unitCircle / numberOfSides)) << std::endl;
+      //circleVertices.push_back(x + (radius * glm::sin(angle * unitCircle / numberOfSides)));
+      //circleVertices.push_back(y + (radius * glm::cos(angle * unitCircle / numberOfSides)));
+      circleVertices.push_back(x + (radius * glm::sin(glm::radians( static_cast<float>(angle) ))));
+      circleVertices.push_back(y + (radius * glm::cos(glm::radians( static_cast<float>(angle) ))));
+    }
+
+    return circleVertices;
+  };
+
+  auto tmpCircleVertices = computeCircleVertices(600.0f, 200.0f, 100.0f, 360);
+  circleVertices.insert(circleVertices.end(), tmpCircleVertices.begin(), tmpCircleVertices.end());
+
+  circleVao.bind();
+  circleVbo.bind();
+  circleVao.enableAttribute(0);
+  circleVao.describeAttributeLayout(0, 2, GL_FLOAT);
+  circleVbo.fillBuffer(circleVertices);
+
+
   engine.previous = (float)glfwGetTime();
   while(!engine.window->shouldWindowClose()) {
     engine.updatePhysics(engine.delta);
 
-    if(engine.delta >= engine.timeStep) {
+    if (engine.delta >= engine.timeStep) {
 
       auto view = engine.currentScene->registry.view<Body, Sprite>();
-      for(auto entityID : view) {
-        auto &sprite = engine.currentScene->registry.get<Sprite>(entityID);
-        auto &body = engine.currentScene->registry.get<Body>(entityID);
+      for (auto entityID : view) {
+        auto& sprite = engine.currentScene->registry.get<Sprite>(entityID);
+        auto& body = engine.currentScene->registry.get<Body>(entityID);
         auto physicsPos = body.getPosition();
 
         sprite.x = physicsPos.x;
@@ -228,7 +286,7 @@ int main() {
       }
 
       if (keys[ GLFW_KEY_EQUAL ]) cameraZoomIn(*engine.currentScene->currentCamera);
-      if(keys[ GLFW_KEY_MINUS]) cameraZoomOut(*engine.currentScene->currentCamera);
+      if (keys[ GLFW_KEY_MINUS ]) cameraZoomOut(*engine.currentScene->currentCamera);
 
       if (keys[ GLFW_KEY_W ]) {
         playerMoveUp(player);
@@ -262,8 +320,8 @@ int main() {
     engine.renderer->beginDynamicBatch(camera.mvp, *engine.shaderProgram, *texture);
     {
       auto view = engine.currentScene->registry.view<Sprite>(entt::exclude<PlayerEntityID>);
-      for(auto entityID : view) {
-        auto &sprite = engine.currentScene->registry.get<Sprite>(entityID);
+      for (auto entityID : view) {
+        auto& sprite = engine.currentScene->registry.get<Sprite>(entityID);
         engine.renderer->draw(sprite);
       }
     }
@@ -279,23 +337,58 @@ int main() {
     debugDraw.projectionMatrix = engine.currentScene->currentCamera->getComponent<Camera>().mvp;
     engine.currentScene->world.drawDebugData();
 
-    debugDraw.vao.bind();
-    debugDraw.vbo.bind();
-    debugDraw.ebo.bind();
+    {
+      debugDraw.vao.bind();
+      debugDraw.vbo.bind();
+      debugDraw.ebo.bind();
 
-    debugDraw.vao.enableAttribute(0);
-    debugDraw.vao.describeAttributeLayout(0, 2, GL_FLOAT);
+      debugDraw.vao.enableAttribute(0);
+      debugDraw.vao.describeAttributeLayout(0, 2, GL_FLOAT);
 
-    debugDraw.vbo.fillBuffer(debugDraw.vertices);
-    debugDraw.ebo.fillBuffer(debugDraw.indices);
+      debugDraw.vbo.fillBuffer(debugDraw.vertices);
+      debugDraw.ebo.fillBuffer(debugDraw.indices);
 
-    debugDraw.shaderProgram.bind();
-    debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
+      debugDraw.shaderProgram.bind();
+      debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
 
-    glDrawElements(GL_TRIANGLES, debugDraw.indices.size(), GL_UNSIGNED_INT, nullptr);
-    debugDraw.vertices.clear();
-    debugDraw.indices.clear();
-    debugDraw.tmp = 0;
+      glDrawElements(GL_TRIANGLES, debugDraw.indices.size(), GL_UNSIGNED_INT, nullptr);
+      debugDraw.vertices.clear();
+      debugDraw.indices.clear();
+      debugDraw.tmp = 0;
+    }
+
+    {
+      triangleVao.bind();
+      triangleVbo.bind();
+      triangleVao.enableAttribute(0);
+      triangleVao.describeAttributeLayout(0, 2, GL_FLOAT);
+      triangleVbo.fillBuffer(triangleVertices);
+      debugDraw.shaderProgram.bind();
+      debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
+      glDrawArrays(GL_TRIANGLES, 0, triangleVertices.size() / 2);
+    }
+
+    {
+      lineVao.bind();
+      lineVbo.bind();
+      lineVao.enableAttribute(0);
+      lineVao.describeAttributeLayout(0, 2, GL_FLOAT);
+      lineVbo.fillBuffer(lineVertices);
+      debugDraw.shaderProgram.bind();
+      debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
+      glDrawArrays(GL_LINES, 0, lineVertices.size() /2);
+    }
+
+    {
+      circleVao.bind();
+      circleVbo.bind();
+      circleVao.enableAttribute(0);
+      circleVao.describeAttributeLayout(0, 2, GL_FLOAT);
+      circleVbo.fillBuffer(circleVertices);
+      debugDraw.shaderProgram.bind();
+      debugDraw.shaderProgram.setUniformMatrix4fv("uMVP", 1, false, glm::value_ptr(debugDraw.projectionMatrix));
+      glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertices.size() / 2);
+    }
 
     engine.window->swapBuffers();
     engine.window->pollEvents();
