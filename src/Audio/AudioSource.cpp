@@ -30,6 +30,16 @@ void play(Entity& audioSourceID) {
   alSourcePlay(audioSrc.sourceID);
 }
 
+void pause(Entity& audioSourceID) {
+  auto& audioSrc = audioSourceID.getComponent<AudioSource>();
+  alSourcePause(audioSrc.sourceID);
+}
+
+void stop(Entity& audioSourceID) {
+  auto& audioSrc = audioSourceID.getComponent<AudioSource>();
+  alSourceStop(audioSrc.sourceID);
+}
+
 AudioSource::~AudioSource() {
   alDeleteSources(1, &sourceID);
 }

@@ -18,6 +18,7 @@ struct AudioSource {
 void setAudioFile(Entity& audioSourceID, std::shared_ptr<AudioFile> audioFile);
 
 void play(Entity& audioSourceID);
-
+void pause(Entity& audioSourceID);
+void stop(Entity& audioSourceID);
 
 #endif

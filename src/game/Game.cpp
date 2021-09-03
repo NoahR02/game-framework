@@ -3,6 +3,8 @@
 
 #include "../Input/Keyboard.h"
 #include "Player.h"
+#include "../Audio/AudioFile.h"
+#include "../Audio/AudioSource.h"
 #include <sstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -267,6 +269,12 @@ int main() {
   circleVao.describeAttributeLayout(0, 2, GL_FLOAT);
   circleVbo.fillBuffer(circleVertices);
 
+  std::shared_ptr<AudioFile> audioFile = std::make_shared<AudioFile>("assets/sounds/jrpg-dungeon-loop.wav");
+
+  auto musicEntity = engine.currentScene->createEntity();
+  auto& music = musicEntity.addComponent<AudioSource>(audioFile);
+
+  play(musicEntity);
 
   engine.previous = (float)glfwGetTime();
   while(!engine.window->shouldWindowClose()) {
@@ -290,6 +298,7 @@ int main() {
 
       if (keys[ GLFW_KEY_W ]) {
         playerMoveUp(player);
+
         //cameraMoveUp(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 48, 16, 16};
       }
@@ -308,7 +317,6 @@ int main() {
 
       if (keys[ GLFW_KEY_D ]) {
         playerMoveRight(player);
-        //cameraMoveRight(*engine.currentScene->currentCamera);
         playerSprite.texturePosition = {16 * 7, 16 * 2, 16, 16};
       }
     }
